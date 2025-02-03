@@ -39,56 +39,56 @@ public class hardwareHandler {
     private Telemetry telemetry;
 
 
-public hardwareHandler (HardwareMap thomasHardwareMap, Telemetry telemetry) {
+    public hardwareHandler (HardwareMap thomasHardwareMap, Telemetry telemetry) {
 
-wheelFL = thomasHardwareMap.dcMotor.get("LeftFront");
-wheelFR = thomasHardwareMap.dcMotor.get("RightFront");
-wheelRL = thomasHardwareMap.dcMotor.get("LeftRear");
-wheelRR = thomasHardwareMap.dcMotor.get("RightRear");
-linearL = thomasHardwareMap.dcMotor.get("LinearL");
-linearR = thomasHardwareMap.dcMotor.get("LinearR");
-intakeR = thomasHardwareMap.crservo.get("IntakeR");
-intakeL = thomasHardwareMap.crservo.get("IntakeL");
-lTMA = thomasHardwareMap.servo.get("LeftTapeMeasureAim");
-rTMA = thomasHardwareMap.servo.get("RightTapeMeasureAim");
-raiseThingy = thomasHardwareMap.dcMotor.get("raisethingy");
-reel = thomasHardwareMap.dcMotor.get("Reel");
-raiseL = thomasHardwareMap.servo.get("raiseL");
-raiseR = thomasHardwareMap.servo.get("raiseR");
-rTMF = thomasHardwareMap.crservo.get("RightTapeMeasureFire");
-lTMF = thomasHardwareMap.crservo.get("LeftTapeMeasureFire");
+        wheelFL = thomasHardwareMap.dcMotor.get("LeftFront");
+        wheelFR = thomasHardwareMap.dcMotor.get("RightFront");
+        wheelRL = thomasHardwareMap.dcMotor.get("LeftRear");
+        wheelRR = thomasHardwareMap.dcMotor.get("RightRear");
+        linearL = thomasHardwareMap.dcMotor.get("LinearL");
+        linearR = thomasHardwareMap.dcMotor.get("LinearR");
+        intakeR = thomasHardwareMap.crservo.get("IntakeR");
+        intakeL = thomasHardwareMap.crservo.get("IntakeL");
+        lTMA = thomasHardwareMap.servo.get("LeftTapeMeasureAim");
+        rTMA = thomasHardwareMap.servo.get("RightTapeMeasureAim");
+        raiseThingy = thomasHardwareMap.dcMotor.get("raisethingy");
+        reel = thomasHardwareMap.dcMotor.get("Reel");
+        raiseL = thomasHardwareMap.servo.get("raiseL");
+        raiseR = thomasHardwareMap.servo.get("raiseR");
+        rTMF = thomasHardwareMap.crservo.get("RightTapeMeasureFire");
+        lTMF = thomasHardwareMap.crservo.get("LeftTapeMeasureFire");
 
-wheelFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-wheelRL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-wheelFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-wheelRR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-linearL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-linearR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-raiseThingy.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-reel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wheelFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wheelRL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wheelFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wheelRR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linearL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linearR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        raiseThingy.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        reel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-wheelFL.setDirection(DcMotorSimple.Direction.REVERSE);
-wheelRL.setDirection(DcMotorSimple.Direction.REVERSE);
+        wheelFL.setDirection(DcMotorSimple.Direction.REVERSE);
+        wheelRL.setDirection(DcMotorSimple.Direction.REVERSE);
 
-wheelRL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-wheelRR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-wheelFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-wheelFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-linearR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-linearL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-raiseThingy.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-reel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wheelRL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wheelRR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wheelFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wheelFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        linearR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        linearL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        raiseThingy.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        reel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-wheelRL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-wheelRR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-wheelFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-wheelFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-linearR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-linearL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-raiseThingy.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-reel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        wheelRL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        wheelRR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        wheelFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        wheelFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        linearR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        linearL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        raiseThingy.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        reel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-}
+    }
     public void moveWithPower(double d, double r, double s, double speed) { // d : linear movement, r : rotational movement, s : speed (0-1); r is signed with CCW as positive
         //assert (speed <= 1 && speed >= 0): "Speed must be between 0 and 1";
 
