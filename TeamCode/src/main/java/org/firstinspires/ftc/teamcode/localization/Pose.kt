@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode.localization
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+/**
+ * Represents a 2D pose with x, y coordinates and a heading (angle).
+ * Provides methods for vector operations, distance calculations, and equality checks.
+ */
 class Pose(var x: Double, var y: Double, var heading: Double) {
     // Constructor overloads
     constructor(x: Double, y: Double) : this(x, y, 0.0)
