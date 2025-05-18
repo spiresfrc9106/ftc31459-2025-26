@@ -12,7 +12,6 @@ interface Path {
      */
     enum class HeadingInterpolationMode {
         LINEAR,
-        CUBIC_HERMITE
     }
 
     /**
@@ -29,55 +28,6 @@ interface Path {
      * The end pose of the path
      */
     var endPose: Pose
-
-    /**
-     * Gets the point at the start of the path
-     * @return The point at the start of the path
-     */
-    fun getStartPose(): Pose {
-        return startPose
-    }
-
-    /**
-     * Gets the point at the end of the path
-     * @return The point at the end of the path
-     */
-    fun getEndPose(): Pose {
-        return endPose
-    }
-
-    /**
-     * Gets the heading interpolation mode for the path
-     * @return The heading interpolation mode
-     */
-    fun getHeadingInterpolationMode(): HeadingInterpolationMode {
-        return headingInterpolationMode
-    }
-
-    /**
-     * Sets the start pose of the path
-     * @param pose The start pose to set
-     */
-    fun setStartPose(pose: Pose) {
-        startPose = pose
-    }
-
-    /**
-     * Sets the end pose of the path
-     * @param pose The end pose to set
-     */
-    fun setEndPose(pose: Pose) {
-        endPose = pose
-    }
-
-    /**
-     * Sets the heading interpolation mode for the path
-     * which determines how the target heading is calculated
-     * @param mode The heading interpolation mode to set
-     */
-    fun setHeadingInterpolationMode(mode: HeadingInterpolationMode) {
-        headingInterpolationMode = mode
-    }
 
     /**
      * Gets the length of the path
@@ -114,18 +64,18 @@ interface Path {
     fun getCurvature(t: Double): Double
 
     /**
-     * Gets the closest point on the path to the given point
-     * @param point The point to find the closest point to
-     * @return The closest point on the path to the given point
-     */
-    fun getClosestPoint(point: Pose): Pose
-
-    /**
      * Gets the parameter t of the closest point on the path to the given point
      * @param point The point to find the closest point to
      * @return The parameter t of the closest point on the path to the given point
      */
     fun getClosestPointT(point: Pose): Double
+
+    /**
+     * Gets the closest point on the path to the given point
+     * @param point The point to find the closest point to
+     * @return The closest point on the path to the given point
+     */
+    fun getClosestPoint(point: Pose): Pose
 
     /**
      * Gets the heading goal at the given parameter t based on the interpolation mode
@@ -136,9 +86,6 @@ interface Path {
         when (headingInterpolationMode) {
             HeadingInterpolationMode.LINEAR -> {
                 return startPose.heading + (endPose.heading - startPose.heading) * t
-            }
-            HeadingInterpolationMode.CUBIC_HERMITE -> {
-                TODO("Not yet implemented")
             }
         }
     }

@@ -12,16 +12,6 @@ class Pose(var x: Double, var y: Double, var heading: Double) {
     constructor(x: Double, y: Double) : this(x, y, 0.0)
     constructor() : this(0.0, 0.0, 0.0)
 
-    // Getters
-    fun getX(): Double { return x }
-    fun getY(): Double { return y }
-    fun getHeading(): Double { return heading }
-
-    // Setters
-    fun setX(x: Double) { this.x = x }
-    fun setY(y: Double) { this.y = y }
-    fun setHeading(heading: Double) { this.heading = heading }
-
     // Vector operations
     fun add(other: Pose) {
         this.x += other.x
@@ -65,7 +55,7 @@ class Pose(var x: Double, var y: Double, var heading: Double) {
     }
 
     override fun toString(): String {
-        return "($x, $y, $heading)"
+        return "Pose(x=$x, y=$y, heading=$heading)"
     }
 
     fun copy(): Pose {

@@ -1,0 +1,48 @@
+package org.firstinspires.ftc.teamcode.opmodes.teleop
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.Bot
+import org.firstinspires.ftc.teamcode.opmodes.teleop.drivers.*
+
+@TeleOp(name = "Teleop", group = "Teleop")
+class Teleop : OpMode() {
+    private lateinit var driver1: TeleopDriver1
+    private lateinit var driver2: TeleopDriver2
+
+    private val timer: ElapsedTime = ElapsedTime()
+
+    private var dt: Double = 0.0 // Delta time in milliseconds
+    private var prevTime = timer.milliseconds()
+
+    override fun init() {
+        Bot.initialize(hardwareMap)
+        driver1 = TeleopDriver1(gamepad1)
+        driver2 = TeleopDriver2(gamepad2)
+        timer.reset()
+    }
+
+    override fun loop() {
+        // Update gamepad inputs
+        driver1.update()
+        driver2.update()
+
+        // Update localizer
+        Bot.localizer.update(dt / 1000.0) // Convert milliseconds to seconds
+
+        // Update telemetry
+        updateTelemetry()
+
+        // Update delta time
+        dt = timer.milliseconds() - prevTime
+        prevTime = timer.milliseconds()
+    }
+
+    private fun updateTelemetry() {
+        telemetry.addData("Drive Speed", driver1.driveSpeed)
+        telemetry.addData("Pose", Bot.localizer.getPose())
+        telemetry.addData("Velocity", Bot.localizer.getVelocity())
+        telemetry.update()
+    }
+}

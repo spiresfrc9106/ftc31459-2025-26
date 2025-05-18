@@ -50,12 +50,15 @@ class LinearPath (override var startPose: Pose, override var endPose: Pose) : Pa
     override fun getClosestPointT(point: Pose): Double {
         val dx = endPose.x - startPose.x
         val dy = endPose.y - startPose.y
+
+        val dotProduct = (point.x - startPose.x) * dx + (point.y - startPose.y) * dy
         val lengthSquared = dx * dx + dy * dy
-        if (lengthSquared == 0.0) {
-            return 0.0
+
+        return if (lengthSquared != 0.0) {
+            (dotProduct / lengthSquared).coerceIn(0.0, 1.0)
+        } else {
+            0.0
         }
-        val t = ((point.x - startPose.x) * dx + (point.y - startPose.y) * dy) / lengthSquared
-        return t.coerceIn(0.0, 1.0)
     }
 
     override fun getClosestPoint(point: Pose): Pose {
