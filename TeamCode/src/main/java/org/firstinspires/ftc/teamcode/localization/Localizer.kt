@@ -1,23 +1,16 @@
 package org.firstinspires.ftc.teamcode.localization
 
 interface Localizer {
-    /**
-     * Gets the current pose of the robot
-     * @return The current pose of the robot
-     */
-    fun getPose(): Pose
+    // TODO: Normalize heading from -PI to PI and correctly calculate velocity
 
-    /**
-     * Gets the current velocity of the robot
-     * @return The current velocity of the robot
-     */
-    fun getVelocity(): Pose
+    /** Current pose of the robot */
+    val pose: Pose
 
-    /**
-     * Gets the current acceleration of the robot
-     * @return The current acceleration of the robot
-     */
-    fun getAcceleration(): Pose
+    /** Current velocity of the robot */
+    val velocity: Pose
+
+    /** Current acceleration of the robot */
+    val acceleration: Pose
 
     /**
      * Updates the pose of the robot based on sensor data

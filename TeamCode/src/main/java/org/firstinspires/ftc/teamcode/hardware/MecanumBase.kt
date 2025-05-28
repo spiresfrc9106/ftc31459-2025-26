@@ -18,14 +18,12 @@ class MecanumBase (hardwareMap: HardwareMap) {
 
     init {
         // Initialize motors
-        for (motor in motors) {
+        for ((i, motor) in motors.withIndex()) {
             motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             motor.mode = DcMotor.RunMode.RUN_USING_ENCODER
             motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            motor.direction = DriveConstants.MOTOR_DIRECTIONS[i]
         }
-        // Set motor directions
-        leftFront.direction = DcMotorSimple.Direction.REVERSE
-        leftBack.direction = DcMotorSimple.Direction.REVERSE
     }
 
     /**
@@ -40,16 +38,16 @@ class MecanumBase (hardwareMap: HardwareMap) {
     /**
      * Sets the power of all drive motors to move in a specific direction.
      */
-    fun moveVector(x: Double, y: Double, rotation: Double, power: Double) {
-        val denominator = (abs(y) + abs(x) + abs(rotation)).coerceAtLeast(1.0)
-        leftFront.velocity = ((y + x + rotation) / denominator) * power * DriveConstants.MAX_DRIVE_VELOCITY
-        leftBack.velocity = ((y - x + rotation) / denominator) * power * DriveConstants.MAX_DRIVE_VELOCITY
-        rightFront.velocity = ((y - x - rotation) / denominator) * power * DriveConstants.MAX_DRIVE_VELOCITY
-        rightBack.velocity = ((y + x - rotation) / denominator) * power * DriveConstants.MAX_DRIVE_VELOCITY
-    }
+    fun moveVector(x: Double, y: Double, rotation: Double, power: Double = DriveConstants.DEFAULT_DRIVE_POWER, adjustForStrafe: Boolean = true) {
+        // Scale movement vector based on the maximum velocity
+        val adjustedX = if (adjustForStrafe) (x * DriveConstants.MAX_HORIZONTAL_VELOCITY / DriveConstants.MAX_FORWARD_VELOCITY) else x
+        val adjustedY = y
 
-    fun moveVector(x: Double, y: Double, rotation: Double) {
-        moveVector(x, y, rotation, DriveConstants.DEFAULT_DRIVE_POWER)
+        val denominator = (abs(adjustedY) + abs(adjustedX) + abs(rotation)).coerceAtLeast(1.0)
+        leftFront.velocity = ((adjustedY + adjustedX + rotation) / denominator) * power * DriveConstants.MAX_DRIVE_MOTOR_VELOCITY
+        leftBack.velocity = ((adjustedY - adjustedX + rotation) / denominator) * power * DriveConstants.MAX_DRIVE_MOTOR_VELOCITY
+        rightFront.velocity = ((adjustedY - adjustedX - rotation) / denominator) * power * DriveConstants.MAX_DRIVE_MOTOR_VELOCITY
+        rightBack.velocity = ((adjustedY + adjustedX - rotation) / denominator) * power * DriveConstants.MAX_DRIVE_MOTOR_VELOCITY
     }
 
     /**

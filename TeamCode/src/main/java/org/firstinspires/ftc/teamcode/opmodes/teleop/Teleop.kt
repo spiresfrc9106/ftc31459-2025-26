@@ -24,12 +24,12 @@ class Teleop : OpMode() {
     }
 
     override fun loop() {
+        // Update localizer
+        Bot.localizer.update(dt / 1000.0) // Convert milliseconds to seconds
+
         // Update gamepad inputs
         driver1.update()
         driver2.update()
-
-        // Update localizer
-        Bot.localizer.update(dt / 1000.0) // Convert milliseconds to seconds
 
         // Update telemetry
         updateTelemetry()
@@ -41,8 +41,8 @@ class Teleop : OpMode() {
 
     private fun updateTelemetry() {
         telemetry.addData("Drive Speed", driver1.driveSpeed)
-        telemetry.addData("Pose", Bot.localizer.getPose())
-        telemetry.addData("Velocity", Bot.localizer.getVelocity())
+        telemetry.addData("Pose", Bot.localizer.pose)
+        telemetry.addData("Velocity", Bot.localizer.velocity)
         telemetry.update()
     }
 }

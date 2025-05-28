@@ -10,14 +10,11 @@ import org.firstinspires.ftc.teamcode.localization.constants.ThreeWheelOdometryC
 import kotlin.math.cos
 import kotlin.math.sin
 
-class ThreeWheelOdometry (hardwareMap: HardwareMap, startPose: Pose) : Localizer {
-    // Constructor overloads
-    constructor(hardwareMap: HardwareMap) : this(hardwareMap, Pose())
-
+class ThreeWheelOdometry (hardwareMap: HardwareMap, startPose: Pose = Pose()) : Localizer {
     // Current pose, velocity, and acceleration
-    private var pose : Pose = startPose
-    private var velocity : Pose = Pose()
-    private var acceleration : Pose = Pose()
+    override var pose : Pose = startPose
+    override var velocity : Pose = Pose()
+    override var acceleration : Pose = Pose()
 
     // Previous encoder values
     private var prevLeftTicks = 0
@@ -34,18 +31,6 @@ class ThreeWheelOdometry (hardwareMap: HardwareMap, startPose: Pose) : Localizer
         odoLeft.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         odoRight.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         odoCenter.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-    }
-
-    override fun getPose(): Pose {
-        return pose
-    }
-
-    override fun getVelocity(): Pose {
-        return velocity
-    }
-
-    override fun getAcceleration(): Pose {
-        return acceleration
     }
 
     override fun update(deltaTime: Double) {

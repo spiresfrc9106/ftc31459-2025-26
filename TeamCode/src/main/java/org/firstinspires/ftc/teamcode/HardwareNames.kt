@@ -12,5 +12,8 @@ class HardwareNames {
         const val ODO_LEFT = "odoLeft"
         const val ODO_RIGHT = "odoRight"
         const val ODO_BACK = "odoBack"
+
+        // Pinpoint
+        const val PINPOINT = "pinpoint"
     }
 }

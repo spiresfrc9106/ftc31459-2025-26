@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.localization.constants
 
-import kotlin.math.sqrt
-
 class ThreeWheelOdometryConstants {
     companion object {
         /** The distance between the left and right odometry wheels

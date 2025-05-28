@@ -7,11 +7,7 @@ import kotlin.math.sqrt
  * Represents a 2D pose with x, y coordinates and a heading (angle).
  * Provides methods for vector operations, distance calculations, and equality checks.
  */
-class Pose(var x: Double, var y: Double, var heading: Double) {
-    // Constructor overloads
-    constructor(x: Double, y: Double) : this(x, y, 0.0)
-    constructor() : this(0.0, 0.0, 0.0)
-
+class Pose(var x: Double = 0.0, var y: Double = 0.0, var heading: Double = 0.0) {
     // Vector operations
     fun add(other: Pose) {
         this.x += other.x
@@ -46,16 +42,12 @@ class Pose(var x: Double, var y: Double, var heading: Double) {
         return sqrt((other.x - this.x).pow(2.0) + (other.y - this.y).pow(2.0))
     }
 
-    fun roughlyEquals(other: Pose, tolerance: Double): Boolean {
+    fun roughlyEquals(other: Pose, tolerance: Double = 0.001): Boolean {
         return this.distanceTo(other) < tolerance
     }
 
-    fun roughlyEquals(other: Pose): Boolean {
-        return this.roughlyEquals(other, 0.001)
-    }
-
     override fun toString(): String {
-        return "Pose(x=$x, y=$y, heading=$heading)"
+        return "(x=${"%.3f".format(x)}, y=${"%.3f".format(y)}, heading=${"%.3f".format(heading)})"
     }
 
     fun copy(): Pose {

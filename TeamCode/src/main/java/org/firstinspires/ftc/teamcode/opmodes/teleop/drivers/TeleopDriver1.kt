@@ -34,6 +34,6 @@ class TeleopDriver1 (var gamepad: Gamepad) {
         if (decDriveSpeed.justChanged) {
             driveSpeed -= 0.1
         }
-        driveSpeed = driveSpeed.coerceIn(0.0, 1.0)
+        driveSpeed = driveSpeed.coerceIn(0.1, 1.0)
     }
 }

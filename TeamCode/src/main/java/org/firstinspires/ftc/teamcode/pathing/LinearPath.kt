@@ -9,10 +9,9 @@ import org.firstinspires.ftc.teamcode.pathing.Path.HeadingInterpolationMode
  * @param startPose The starting pose of the path
  * @param endPose The ending pose of the path
  */
-class LinearPath (override var startPose: Pose, override var endPose: Pose) : Path {
+class LinearPath (override var startPose: Pose = Pose(), override var endPose: Pose = Pose()) : Path {
     // Constructor overloads
     constructor(startX: Double, startY: Double, endX: Double, endY: Double) : this(Pose(startX, startY), Pose(endX, endY))
-    constructor() : this(Pose(), Pose())
 
     // Enum for heading interpolation mode
     override var headingInterpolationMode: HeadingInterpolationMode = HeadingInterpolationMode.LINEAR
