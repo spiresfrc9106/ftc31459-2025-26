@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.localization
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -52,5 +56,9 @@ class Pose(var x: Double = 0.0, var y: Double = 0.0, var heading: Double = 0.0) 
 
     fun copy(): Pose {
         return Pose(x, y, heading)
+    }
+
+    fun getPose2D() : Pose2D {
+        return Pose2D(DistanceUnit.CM, x, y, AngleUnit.RADIANS, heading)
     }
 }

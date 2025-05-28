@@ -11,10 +11,10 @@ class DriveConstants {
         const val DEFAULT_DRIVE_POWER = 0.7
 
         /** The maximum forward velocity in cm per second. */
-        const val MAX_FORWARD_VELOCITY = 50.0 // Needs to be tuned
+        const val MAX_FORWARD_VELOCITY = 150.0
 
         /** The maximum horizontal velocity in cm per second. */
-        const val MAX_HORIZONTAL_VELOCITY = 50.0 // Needs to be tuned
+        const val MAX_HORIZONTAL_VELOCITY = 125.0
 
         /** The directions of the drive motors. */
         val MOTOR_DIRECTIONS = arrayOf(

@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop
 
+import com.acmerobotics.dashboard.FtcDashboard
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.Bot
+import org.firstinspires.ftc.teamcode.helpers.TelemetryInterface
 import org.firstinspires.ftc.teamcode.opmodes.teleop.drivers.*
 
 @TeleOp(name = "Teleop", group = "Teleop")
@@ -18,6 +20,7 @@ class Teleop : OpMode() {
 
     override fun init() {
         Bot.initialize(hardwareMap)
+        Bot.setTelemetry(TelemetryInterface(telemetry, FtcDashboard.getInstance().telemetry))
         driver1 = TeleopDriver1(gamepad1)
         driver2 = TeleopDriver2(gamepad2)
         timer.reset()
@@ -40,9 +43,9 @@ class Teleop : OpMode() {
     }
 
     private fun updateTelemetry() {
-        telemetry.addData("Drive Speed", driver1.driveSpeed)
-        telemetry.addData("Pose", Bot.localizer.pose)
-        telemetry.addData("Velocity", Bot.localizer.velocity)
-        telemetry.update()
+        Bot.telemetry.addData("Drive Speed", driver1.driveSpeed)
+        Bot.telemetry.addData("Pose", Bot.localizer.pose)
+        Bot.telemetry.addData("Velocity", Bot.localizer.velocity)
+        Bot.telemetry.update()
     }
 }
