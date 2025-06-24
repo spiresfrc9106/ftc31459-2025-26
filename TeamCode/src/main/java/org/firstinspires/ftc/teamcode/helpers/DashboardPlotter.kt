@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.pathing.paths.Path
  */
 class DashboardPlotter {
     companion object {
-        val maxPreviousPositions = 500
+        const val MAX_PREVIOUS_POSITIONS = 500
         private val previousPositions = mutableListOf<Pose>()
 
         fun toDashboardCoordinates(pose: Pose): Pose {
@@ -23,7 +23,7 @@ class DashboardPlotter {
         fun plotBotPosition(packet: TelemetryPacket, position: Pose, showPathTaken: Boolean = true, color: String = "#000000") {
             val pose = toDashboardCoordinates(position)
             previousPositions.add(pose)
-            if (previousPositions.size > maxPreviousPositions) {
+            if (previousPositions.size > MAX_PREVIOUS_POSITIONS) {
                 previousPositions.removeAt(0)
             }
             val tl = Pose(-8.0, -8.0) // Top-left corner
@@ -77,6 +77,10 @@ class DashboardPlotter {
             packet.fieldOverlay()
                 .setStroke(color)
                 .strokeCircle(dashboardCenter.x, dashboardCenter.y, radius * 160.0 / 366.0) // Scale radius to match field size
+        }
+
+        fun clearPreviousPositions() {
+            previousPositions.clear()
         }
     }
 }

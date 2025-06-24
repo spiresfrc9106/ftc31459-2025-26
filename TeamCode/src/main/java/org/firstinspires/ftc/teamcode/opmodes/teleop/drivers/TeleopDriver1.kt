@@ -3,23 +3,31 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop.drivers
 import com.qualcomm.robotcore.hardware.Gamepad
 import org.firstinspires.ftc.teamcode.Bot
 import org.firstinspires.ftc.teamcode.helpers.Toggle
+import org.firstinspires.ftc.teamcode.localization.Pose
 
 class TeleopDriver1 (var gamepad: Gamepad) {
     var driveSpeed = 0.5
+    val fieldCentric: Boolean
+        get() = fieldCentricToggle.state
 
     // Toggles
     private var incDriveSpeed: Toggle = Toggle(false)
     private var decDriveSpeed: Toggle = Toggle(false)
+    private var fieldCentricToggle: Toggle = Toggle(false)
 
     fun update() {
         drive()
         updateDriveSpeed()
+        updateFieldCentric()
     }
 
     fun drive() {
+        val direction = Pose(gamepad.left_stick_x.toDouble(), -gamepad.left_stick_y.toDouble())
+        if (fieldCentricToggle.state) direction.rotate(Bot.localizer.pose.heading) // Rotate to local coordinates
+
         Bot.mecanumBase.moveVector(
-            gamepad.left_stick_x.toDouble(),
-            -gamepad.left_stick_y.toDouble(),
+            direction.x,
+            direction.y,
             gamepad.right_stick_x.toDouble(),
             driveSpeed
         )
@@ -35,5 +43,9 @@ class TeleopDriver1 (var gamepad: Gamepad) {
             driveSpeed -= 0.1
         }
         driveSpeed = driveSpeed.coerceIn(0.1, 1.0)
+    }
+
+    fun updateFieldCentric() {
+        fieldCentricToggle.toggle(gamepad.left_trigger > 0.5 && gamepad.right_trigger > 0.5)
     }
 }

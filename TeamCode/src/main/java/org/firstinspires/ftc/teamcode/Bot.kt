@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.hardware.MecanumBase
+import org.firstinspires.ftc.teamcode.helpers.DashboardPlotter
 import org.firstinspires.ftc.teamcode.helpers.FileLogger
-import org.firstinspires.ftc.teamcode.helpers.TelemetryInterface
 import org.firstinspires.ftc.teamcode.localization.Localizer
 import org.firstinspires.ftc.teamcode.localization.localizers.Pinpoint
 import org.firstinspires.ftc.teamcode.pathing.follower.Follower
@@ -14,13 +17,15 @@ class Bot () {
         private val timer: ElapsedTime = ElapsedTime()
         private var prevTime: Double = timer.milliseconds()
 
-        var dt: Double = 0.0 // Delta time in milliseconds
+        var telemetryPacket: TelemetryPacket = TelemetryPacket(false)
+
+        lateinit var telemetry: Telemetry
             private set // Prevent external modification
 
-        lateinit var mecanumBase: MecanumBase
+        var dt: Double = 0.0 // Delta time in milliseconds
             private set
 
-        lateinit var telemetry: TelemetryInterface
+        lateinit var mecanumBase: MecanumBase
             private set
 
         lateinit var follower: Follower
@@ -28,7 +33,8 @@ class Bot () {
 
         lateinit var localizer: Localizer
 
-        fun initialize(hardwareMap: HardwareMap) {
+        fun initialize(hardwareMap: HardwareMap, telemetry: Telemetry) {
+            this.telemetry = telemetry
             mecanumBase = MecanumBase(hardwareMap)
             localizer = Pinpoint(hardwareMap)
             follower = Follower()
@@ -46,14 +52,16 @@ class Bot () {
             prevTime = timer.milliseconds()
         }
 
-        fun setTelemetry(telemetry: TelemetryInterface) {
-            this.telemetry = telemetry
+        fun sendTelemetryPacket() {
+            FtcDashboard.getInstance().sendTelemetryPacket(telemetryPacket)
+            telemetryPacket = TelemetryPacket(false) // Reset the packet for the next loop
         }
 
         fun stop() {
             mecanumBase.stop()
             follower.path = null // Clear the path
             FileLogger.flush() // Save any pending logs
+            DashboardPlotter.clearPreviousPositions()
         }
     }
 }

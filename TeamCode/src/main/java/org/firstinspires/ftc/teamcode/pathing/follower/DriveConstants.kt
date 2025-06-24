@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.pathing.follower
 
+import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import kotlin.math.min
 
+@Config
 class DriveConstants {
     companion object {
         /** The maximum velocity of the drive motors in ticks per second. */
@@ -17,6 +19,9 @@ class DriveConstants {
         /** The maximum horizontal velocity in cm per second. */
         const val MAX_HORIZONTAL_VELOCITY = 125.0
 
+        /** The maximum rotational velocity in radians per second. */
+        const val MAX_ROTATIONAL_VELOCITY = 3.0
+
         /** The maximum drive velocity in cm per second. */
         val MAX_DRIVE_VELOCITY = min(MAX_FORWARD_VELOCITY, MAX_HORIZONTAL_VELOCITY)
 
@@ -24,7 +29,37 @@ class DriveConstants {
         const val LOOK_AHEAD_DISTANCE = 15.0
 
         /** The threshold in cm to consider the target reached.*/
-        const val TARGET_REACHED_THRESHOLD = 1.0
+        const val POSITION_THRESHOLD = 0.5
+
+        /** The threshold in degrees to consider the target reached.*/
+        const val ROTATION_THRESHOLD = 0.01
+
+        @JvmField var PIDF_X = arrayOf(
+            0.01,   // P
+            0.0,    // I
+            0.001,  // D
+            0.005   // F
+        )
+
+        @JvmField var PIDF_Y = arrayOf(
+            0.01,   // P
+            0.0,    // I
+            0.001,  // D
+            0.005   // F
+        )
+
+        @JvmField var PIDF_OMEGA = arrayOf(
+            0.1,   // P
+            0.0,   // I
+            0.0,   // D
+            0.175  // F
+        )
+
+        @JvmField var PID_ROTATION = arrayOf(
+            5.0, // P
+            0.05, // I
+            25.0, // D
+        )
 
         /** The directions of the drive motors. */
         val MOTOR_DIRECTIONS = arrayOf(

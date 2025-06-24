@@ -55,12 +55,17 @@ class Pose(var x: Double = 0.0, var y: Double = 0.0, var heading: Double = 0.0) 
     }
 
     // Other utility methods
+    fun getLength(): Double {
+        return sqrt(x * x + y * y)
+    }
+
     fun distanceTo(other: Pose): Double {
         return sqrt((other.x - this.x).pow(2.0) + (other.y - this.y).pow(2.0))
     }
 
-    fun roughlyEquals(other: Pose, tolerance: Double = 0.001): Boolean {
-        return this.distanceTo(other) < tolerance
+    fun roughlyEquals(other: Pose, positionTolerance: Double = 0.001, headingTolerance: Double = 0.001): Boolean {
+        return this.distanceTo(other) < positionTolerance &&
+               kotlin.math.abs(this.heading - other.heading) < headingTolerance
     }
 
     override fun toString(): String {

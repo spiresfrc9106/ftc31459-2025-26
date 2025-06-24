@@ -16,7 +16,7 @@ class Teleop : OpMode() {
     private val dashboard = FtcDashboard.getInstance()
 
     override fun init() {
-        Bot.initialize(hardwareMap)
+        Bot.initialize(hardwareMap, telemetry)
         driver1 = TeleopDriver1(gamepad1)
         driver2 = TeleopDriver2(gamepad2)
     }
@@ -35,13 +35,13 @@ class Teleop : OpMode() {
 
     private fun updateTelemetry() {
         telemetry.addData("Drive Speed", driver1.driveSpeed)
+        telemetry.addData("Field Centric", driver1.fieldCentric)
         telemetry.addData("Pose", Bot.localizer.pose)
         telemetry.addData("Velocity", Bot.localizer.velocity)
         telemetry.update()
 
-        val packet = TelemetryPacket()
-        DashboardPlotter.plotBotPosition(packet, Bot.localizer.pose)
-        dashboard.sendTelemetryPacket(packet)
+        DashboardPlotter.plotBotPosition(Bot.telemetryPacket, Bot.localizer.pose)
+        Bot.sendTelemetryPacket()
     }
 
     override fun stop() {

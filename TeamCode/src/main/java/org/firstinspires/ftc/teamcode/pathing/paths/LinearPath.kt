@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pathing.paths
 
+import org.firstinspires.ftc.teamcode.helpers.Angle
 import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.pathing.paths.Path.HeadingInterpolationMode
 import kotlin.math.sqrt
@@ -25,7 +26,8 @@ class LinearPath (override var startPose: Pose = Pose(), override var endPose: P
     override fun getHeading(t: Double): Double {
         when (headingInterpolationMode) {
             HeadingInterpolationMode.LINEAR -> {
-                return startPose.heading + (endPose.heading - startPose.heading) * t
+                val delta = Angle.normalizeRadians(endPose.heading - startPose.heading)
+                return startPose.heading + delta * t
             }
         }
     }
@@ -57,7 +59,7 @@ class LinearPath (override var startPose: Pose = Pose(), override var endPose: P
         return 0.0 // Linear paths have zero curvature
     }
 
-    override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double {
+    override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double? {
         val dx = endPose.x - startPose.x
         val dy = endPose.y - startPose.y
         val fx = startPose.x - position.x
@@ -71,7 +73,7 @@ class LinearPath (override var startPose: Pose = Pose(), override var endPose: P
         // If the discriminant is negative, there are no real solutions
         val discriminant = b * b - 4 * a * c
         if (discriminant < 0) {
-            return -1.0 // No intersection
+            return null // No intersection
         }
 
         // Calculate the two possible t values using the quadratic formula
@@ -83,5 +85,25 @@ class LinearPath (override var startPose: Pose = Pose(), override var endPose: P
         t2 = t2.coerceIn(0.0, 1.0)
 
         return if (t1 > t2) t1 else t2 // Return the larger t value
+    }
+
+    override fun getClosestPointT(position: Pose): Double {
+        val dx = endPose.x - startPose.x
+        val dy = endPose.y - startPose.y
+        val fx = position.x - startPose.x
+        val fy = position.y - startPose.y
+
+        // Calculate the projection of (fx, fy) onto (dx, dy)
+        val dotProduct = fx * dx + fy * dy
+        val lengthSquared = dx * dx + dy * dy
+
+        if (lengthSquared == 0.0) {
+            return 0.0 // The path is a point
+        }
+
+        var t = dotProduct / lengthSquared
+        t = t.coerceIn(0.0, 1.0) // Coerce to [0, 1]
+
+        return t
     }
 }
