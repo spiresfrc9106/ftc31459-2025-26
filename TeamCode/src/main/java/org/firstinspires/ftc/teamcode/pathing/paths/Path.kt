@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.pathing
+package org.firstinspires.ftc.teamcode.pathing.paths
 
 import org.firstinspires.ftc.teamcode.localization.Pose
 
@@ -36,6 +36,13 @@ interface Path {
     fun getLength(): Double
 
     /**
+     * Gets the heading at the given parameter t
+     * @param t The parameter value in the range [0, 1]
+     * @return The heading at the given parameter
+     */
+    fun getHeading(t: Double): Double
+
+    /**
      * Gets the point at the given parameter t
      * @param t The parameter value in the range [0, 1]
      * @return The point at the given parameter
@@ -64,18 +71,29 @@ interface Path {
     fun getCurvature(t: Double): Double
 
     /**
-     * Gets the parameter t of the closest point on the path to the given point
-     * @param point The point to find the closest point to
-     * @return The parameter t of the closest point on the path to the given point
+     * Gets the time of intersection between the path and a circle with radius lookaheadDistance and center at position.
+     * If there are multiple intersections, the largest t value is returned, if there are no intersections, -1 is returned.
+     * @param position The center of the circle
+     * @param lookaheadDistance The radius of the circle
+     * @return The time parameter t at which the circle intersects the path
      */
-    fun getClosestPointT(point: Pose): Double
+    fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double
 
     /**
-     * Gets the closest point on the path to the given point
-     * @param point The point to find the closest point to
-     * @return The closest point on the path to the given point
+     * Gets the point of intersection between the path and a circle with radius lookaheadDistance and center at position
+     * If there are multiple intersections, the largest t value is used to get the point. If there are no intersections, the start point is returned.
+     * @param position The center of the circle
+     * @param lookaheadDistance The radius of the circle
+     * @return The point at which the circle intersects the path
      */
-    fun getClosestPoint(point: Pose): Pose
+    fun getLookaheadPoint(position: Pose, lookaheadDistance: Double): Pose {
+        val t = getLookaheadPointT(position, lookaheadDistance)
+        if (t == -1.0) {
+            // If there is no intersection, return the start point
+            return getPoint(0.0)
+        }
+        return getPoint(t)
+    }
 
     /**
      * Gets the heading goal at the given parameter t based on the interpolation mode

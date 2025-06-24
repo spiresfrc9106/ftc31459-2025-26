@@ -21,26 +21,29 @@ class Pinpoint (hardwareMap: HardwareMap, startPose: Pose = Pose()) : Localizer 
     private val pinpoint = hardwareMap.get(GoBildaPinpointDriver::class.java, HardwareNames.PINPOINT)
 
     init {
-        pinpoint.setOffsets(PinpointConstants.Y_POD_OFFSET, PinpointConstants.X_POD_OFFSET, DistanceUnit.MM)
+        pinpoint.setOffsets(PinpointConstants.X_POD_OFFSET, PinpointConstants.Y_POD_OFFSET, DistanceUnit.MM)
         pinpoint.setEncoderResolution(PinpointConstants.ENCODER_RESOLUTION)
-        pinpoint.setEncoderDirections(PinpointConstants.Y_ENCODER_DIRECTION, PinpointConstants.X_ENCODER_DIRECTION)
+        pinpoint.setEncoderDirections(PinpointConstants.X_ENCODER_DIRECTION, PinpointConstants.Y_ENCODER_DIRECTION)
         pinpoint.recalibrateIMU()
         pinpoint.setPosition(Pose2D(DistanceUnit.CM, startPose.x, startPose.y, AngleUnit.RADIANS, startPose.heading))
+        pinpoint.update()
     }
 
     override fun update(deltaTime: Double) {
         pinpoint.update()
         // Update pose and velocity based on the pinpoint data
-        // X and Y are swapped because the Pinpoint's coordinate system is flipped
+        // Pinpoint uses X+ as forward, Y+ as left
+        // We need to convert this to our coordinate system where X+ is right, Y+ is forward
+        // Heading is changed from range [0, 2π) to [-π, π)
         pose = Pose(
-            pinpoint.getPosY(DistanceUnit.CM),
+            -pinpoint.getPosY(DistanceUnit.CM),
             pinpoint.getPosX(DistanceUnit.CM),
-            pinpoint.getHeading(AngleUnit.RADIANS)
+            -pinpoint.getHeading(AngleUnit.RADIANS)
         )
         velocity = Pose(
-            pinpoint.getVelY(DistanceUnit.CM),
+            -pinpoint.getVelY(DistanceUnit.CM),
             pinpoint.getVelX(DistanceUnit.CM),
-            pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS)
+            -pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS)
         )
     }
 

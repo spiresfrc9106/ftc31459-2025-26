@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.helpers
 
+import android.util.Log
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.localization.Pose
 
-/** Class used to update both the phone telemetry and the dashboard telemetry. */
+/** Class used to update both the phone telemetry and the dashboard telemetry.
+ * Also logs telemetry to Logcat */
 class TelemetryInterface(val phone : Telemetry, val dashboard : Telemetry) {
+    private val TAG = "Telemetry"
     var enableDashboard = true
 
     fun addData(name : String, data : Any, useDashboard : Boolean? = null) {
@@ -14,6 +17,8 @@ class TelemetryInterface(val phone : Telemetry, val dashboard : Telemetry) {
         } else if (useDashboard) {
             addDashboardData(name, data)
         }
+        FileLogger.debug(TAG, "$name: $data")
+        Log.d(TAG, "$name: $data")
     }
 
     fun addLine(line : String, useDashboard : Boolean? = null) {
@@ -23,6 +28,8 @@ class TelemetryInterface(val phone : Telemetry, val dashboard : Telemetry) {
         } else if (useDashboard) {
             dashboard.addLine(line)
         }
+        FileLogger.debug(TAG, line)
+        Log.d(TAG, line)
     }
 
     fun update() {
@@ -30,7 +37,7 @@ class TelemetryInterface(val phone : Telemetry, val dashboard : Telemetry) {
         phone.update()
     }
 
-    fun addDashboardData(name: String, data: Any) {
+    private fun addDashboardData(name: String, data: Any) {
         // Convert Pose objects to separate X Y and Theta for graphing
         if (data is Pose) {
             dashboard.addData("$name X", "%.3f".format(data.x))

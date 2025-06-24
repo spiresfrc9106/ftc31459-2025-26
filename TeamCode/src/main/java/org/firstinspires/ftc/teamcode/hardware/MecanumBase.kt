@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.hardware
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
-import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.Bot
 import org.firstinspires.ftc.teamcode.HardwareNames
+import org.firstinspires.ftc.teamcode.helpers.PIDFController
 import org.firstinspires.ftc.teamcode.pathing.follower.DriveConstants
-import kotlin.div
 import kotlin.math.abs
 
 class MecanumBase (hardwareMap: HardwareMap) {
@@ -16,6 +16,12 @@ class MecanumBase (hardwareMap: HardwareMap) {
     val rightFront = hardwareMap.get(DcMotorEx::class.java, HardwareNames.DRIVE_RIGHT_FRONT)
     val rightBack = hardwareMap.get(DcMotorEx::class.java, HardwareNames.DRIVE_RIGHT_BACK)
     val motors = arrayOf(leftFront, leftBack, rightFront, rightBack)
+
+    // PIDF controllers for velocity control
+    // TODO: Tune velocity PIDF controllers
+    private val pidX = PIDFController(0.0, 0.0, 0.0, 0.0)
+    private val pidY = PIDFController(0.0, 0.0, 0.0, 0.0)
+    private val pidOmega = PIDFController(0.0, 0.0, 0.0, 0.0)
 
     init {
         // Initialize motors
@@ -41,6 +47,11 @@ class MecanumBase (hardwareMap: HardwareMap) {
 
     /**
      * Sets the power of all drive motors to move in a specific direction.
+     * @param x The x component of the movement vector (right is positive).
+     * @param y The y component of the movement vector (forward is positive).
+     * @param rotation The rotation component (counter-clockwise is positive).
+     * @param power Scaling factor for the drive power, default is [DriveConstants.DEFAULT_DRIVE_POWER].
+     * @param adjustForStrafe Whether to adjust the x component for strafing inefficiency.
      */
     fun moveVector(x: Double, y: Double, rotation: Double, power: Double = DriveConstants.DEFAULT_DRIVE_POWER, adjustForStrafe: Boolean = true) {
         // Adjust x for strafing if necessary
@@ -52,6 +63,19 @@ class MecanumBase (hardwareMap: HardwareMap) {
         leftBack.velocity = ((y - adjX + rotation) / denominator) * power * DriveConstants.MAX_DRIVE_MOTOR_VELOCITY
         rightFront.velocity = ((y - adjX - rotation) / denominator) * power * DriveConstants.MAX_DRIVE_MOTOR_VELOCITY
         rightBack.velocity = ((y + adjX - rotation) / denominator) * power * DriveConstants.MAX_DRIVE_MOTOR_VELOCITY
+    }
+
+    /**
+     * Uses PIDF to move the robot in a direction specified by velocity components.
+     * @param vx The x component of the velocity in cm/s (right is positive).
+     * @param vy The y component of the velocity in cm/s (forward is positive).
+     * @param omega The angular velocity in radians/second (clockwise is positive).
+     */
+    fun moveVelocity(vx: Double, vy: Double, omega: Double) {
+        val xPower = pidX.update(vx, Bot.localizer.velocity.x, Bot.dt).coerceIn(-1.0, 1.0)
+        val yPower = pidY.update(vy, Bot.localizer.velocity.y, Bot.dt).coerceIn(-1.0, 1.0)
+        val omegaPower = pidOmega.update(omega, Bot.localizer.velocity.heading, Bot.dt).coerceIn(-1.0, 1.0)
+        moveVector(xPower, yPower, omegaPower, 1.0, false)
     }
 
     /**

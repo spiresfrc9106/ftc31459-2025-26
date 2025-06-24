@@ -3,8 +3,9 @@ package org.firstinspires.ftc.teamcode.localization
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D
+import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -25,10 +26,12 @@ class Pose(var x: Double = 0.0, var y: Double = 0.0, var heading: Double = 0.0) 
         this.heading -= other.heading
     }
 
-    fun multiply(scalar: Double) {
+    fun scale(scalar: Double, scaleHeading: Boolean = false) {
         this.x *= scalar
         this.y *= scalar
-        this.heading *= scalar
+        if (scaleHeading) {
+            this.heading *= scalar
+        }
     }
 
     fun divide(scalar: Double) {
@@ -39,6 +42,16 @@ class Pose(var x: Double = 0.0, var y: Double = 0.0, var heading: Double = 0.0) 
         } else {
             throw IllegalArgumentException("Cannot divide by zero")
         }
+    }
+
+    fun rotate(angle: Double) {
+        // Rotate about the origin (0, 0)
+        val cosTheta = cos(angle)
+        val sinTheta = sin(angle)
+        val newX = this.x * cosTheta - this.y * sinTheta
+        val newY = this.x * sinTheta + this.y * cosTheta
+        this.x = newX
+        this.y = newY
     }
 
     // Other utility methods
@@ -54,11 +67,24 @@ class Pose(var x: Double = 0.0, var y: Double = 0.0, var heading: Double = 0.0) 
         return "(x=${"%.3f".format(x)}, y=${"%.3f".format(y)}, heading=${"%.3f".format(heading)})"
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Pose) return false
+        return this.x == other.x && this.y == other.y && this.heading == other.heading
+    }
+
     fun copy(): Pose {
         return Pose(x, y, heading)
     }
 
     fun getPose2D() : Pose2D {
         return Pose2D(DistanceUnit.CM, x, y, AngleUnit.RADIANS, heading)
+    }
+
+    override fun hashCode(): Int {
+        var result = x.hashCode()
+        result = 31 * result + y.hashCode()
+        result = 31 * result + heading.hashCode()
+        return result
     }
 }
