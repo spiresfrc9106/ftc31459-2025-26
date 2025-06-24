@@ -8,7 +8,7 @@ class Polynomial(coeffs: Array<Double>) {
 
     // Evaluates as a nested polynomial
     fun eval(x: Double, coeffs: Array<Double> = coefficients) : Double {
-        var value: Double = 0.0
+        var value = 0.0
         for (coeff in coeffs.reversed()) {
             value = coeff + (x*value)
         }
@@ -56,13 +56,21 @@ class Polynomial(coeffs: Array<Double>) {
     }
 
     fun derEval(x: Double) : Double {
-        val der = derivative()
-        return eval(x, der.coefficients)
+        return derivative().eval(x)
     }
 
     fun finiteInt(x1: Double, x2: Double) : Double {
         val antiDer = antiDerivative()
-        return (eval(x2, antiDer.coefficients) - eval(x1, antiDer.coefficients))
+        return antiDer.eval(x2) - antiDer.eval(x1)
+    }
+
+    // Evaluate nth derivative at x
+    fun nDerEval(x: Double, n: Int) : Double {
+        var der = this
+        for (i in 1..n) {
+            der = der.derivative()
+        }
+        return der.eval(x)
     }
 
 }

@@ -6,9 +6,16 @@ import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.pathing.paths.Path.HeadingInterpolationMode
 import kotlin.math.pow
 
+/**
+ * HermitePath class representing a Hermite curve
+ * @param startPose The starting pose of the path
+ * @param endPose The ending pose of the path
+ * @param startVelocity The starting velocity vector [x,y]
+ * @param endVelocity The ending velocity vector [x,y]
+ */
 class HermitePath(override var startPose: Pose, override var endPose: Pose,
-                  val startVelocity: Array<Double> = arrayOf(-1.0, -1.0),
-                  val endVelocity: Array<Double> = arrayOf(-1.0, -1.0)) : Path {
+                  startVelocity: Array<Double> = arrayOf(-1.0, -1.0),
+                  endVelocity: Array<Double> = arrayOf(-1.0, -1.0)) : Path {
 
     // Enum for heading interpolation mode
     override var headingInterpolationMode: HeadingInterpolationMode = HeadingInterpolationMode.LINEAR
@@ -64,13 +71,13 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
     }
 
     override fun getCurvature(t: Double): Double {
-        val xDer = xHermite.derivative()
-        val yDer = yHermite.derivative()
-        val xDerDer = xDer.derivative()
-        val yDerDer = yDer.derivative()
+        val xDer = xHermite.derEval(t)
+        val yDer = yHermite.derEval(t)
+        val xDer2 = xHermite.nDerEval(t, 2) // Second derivative
+        val yDer2 = yHermite.nDerEval(t, 2)
 
-        val numerator = xDer.eval(t) * yDerDer.eval(t) - xDerDer.eval(t) * yDer.eval(t)
-        var denominator = xDer.eval(t).pow(2.0) + yDer.eval(t).pow(2.0)
+        val numerator = xDer * xDer2 - yDer2 * yDer
+        var denominator = xDer.pow(2.0) + yDer.pow(2.0)
         denominator = denominator.pow(1.5)
 
         return (numerator / denominator)
