@@ -58,17 +58,36 @@ class CompoundPath(val paths: List<Path>) : Path {
         return paths[pathIndex].getCurvature(localT)
     }
 
-    override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double {
+    override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double? {
         // Return the farthest intersection point along the compound path
         for (i in paths.size - 1 downTo 0) {
             val lookaheadPointT = paths[i].getLookaheadPointT(position, lookaheadDistance)
-            if (lookaheadPointT != -1.0) {
+            if (lookaheadPointT != null) {
                 // Calculate the global t value for the intersection point
                 val globalT = (i + lookaheadPointT) / paths.size
                 return globalT
             }
         }
-        return -1.0 // No intersection found
+        return null // No intersection found
+    }
+
+    override fun getClosestPointT(position: Pose): Double {
+        // Find the closest point on each path and return the closest one
+        var closestT = -1.0
+        var minDistance = Double.MAX_VALUE
+
+        for (path in paths) {
+            val t = path.getClosestPointT(position)
+            val point = path.getPoint(t)
+            val distance = position.distanceTo(point)
+
+            if (distance < minDistance) {
+                minDistance = distance
+                closestT = (t + paths.indexOf(path)) / paths.size
+            }
+        }
+
+        return closestT
     }
 
     class Builder {

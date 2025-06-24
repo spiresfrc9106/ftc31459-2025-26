@@ -77,7 +77,23 @@ interface Path {
      * @param lookaheadDistance The radius of the circle
      * @return The time parameter t at which the circle intersects the path
      */
-    fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double
+    fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double?
+
+    /**
+     * Gets the closest point t value to the given position on the path
+     * @param position The position to get the closest point to
+     * @return The parameter t value of the closest point on the path to the given position
+     */
+    fun getClosestPointT(position: Pose): Double
+
+    /**
+     * Gets the closest point on the path to the given position
+     * @param position The position to get the closest point to
+     * @return The closest point on the path to the given position
+     */
+    fun getClosestPoint(position: Pose): Pose {
+        return getPoint(getClosestPointT(position))
+    }
 
     /**
      * Gets the point of intersection between the path and a circle with radius lookaheadDistance and center at position
@@ -88,11 +104,7 @@ interface Path {
      */
     fun getLookaheadPoint(position: Pose, lookaheadDistance: Double): Pose {
         val t = getLookaheadPointT(position, lookaheadDistance)
-        if (t == -1.0) {
-            // If there is no intersection, return the start point
-            return getPoint(0.0)
-        }
-        return getPoint(t)
+        return getPoint(t ?: 0.0) // If no intersection, return start point
     }
 
     /**

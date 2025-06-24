@@ -1,21 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmodes.calibration
 
-import com.acmerobotics.dashboard.FtcDashboard
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import org.firstinspires.ftc.teamcode.Bot
-import org.firstinspires.ftc.teamcode.helpers.TelemetryInterface
 
 @Autonomous(name = "Horizontal Velocity Tuner", group = "Calibration")
-class HorizontalVelocityTuner : OpMode() {
+class MaxHorizontalVelocityTuner : OpMode() {
     // TODO: Use pure pursuit to stay in a straight line?
 
     private var maxVelocity = 0.0 // Maximum velocity in cm/s
     private var accel = 0.0 // Used to gradually accelerate
 
     override fun init() {
-        Bot.initialize(hardwareMap)
-        Bot.setTelemetry(TelemetryInterface(telemetry, FtcDashboard.getInstance().telemetry))
+        Bot.initialize(hardwareMap, telemetry)
         Bot.localizer.reset() // Reset the localizer to the origin
 
         // Update telemetry

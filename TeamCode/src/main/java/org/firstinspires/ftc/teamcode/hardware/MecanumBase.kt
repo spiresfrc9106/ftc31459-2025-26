@@ -19,9 +19,9 @@ class MecanumBase (hardwareMap: HardwareMap) {
 
     // PIDF controllers for velocity control
     // TODO: Tune velocity PIDF controllers
-    private val pidX = PIDFController(0.0, 0.0, 0.0, 0.0)
-    private val pidY = PIDFController(0.0, 0.0, 0.0, 0.0)
-    private val pidOmega = PIDFController(0.0, 0.0, 0.0, 0.0)
+    private val pidX = PIDFController(DriveConstants.PIDF_X)
+    private val pidY = PIDFController(DriveConstants.PIDF_Y)
+    private val pidOmega = PIDFController(DriveConstants.PIDF_OMEGA)
 
     init {
         // Initialize motors
@@ -47,6 +47,7 @@ class MecanumBase (hardwareMap: HardwareMap) {
 
     /**
      * Sets the power of all drive motors to move in a specific direction.
+     * Robot centric (local coordinates) movement is used.
      * @param x The x component of the movement vector (right is positive).
      * @param y The y component of the movement vector (forward is positive).
      * @param rotation The rotation component (counter-clockwise is positive).
@@ -67,13 +68,16 @@ class MecanumBase (hardwareMap: HardwareMap) {
 
     /**
      * Uses PIDF to move the robot in a direction specified by velocity components.
+     * Robot centric (local coordinates) movement is used.
      * @param vx The x component of the velocity in cm/s (right is positive).
      * @param vy The y component of the velocity in cm/s (forward is positive).
      * @param omega The angular velocity in radians/second (clockwise is positive).
      */
     fun moveVelocity(vx: Double, vy: Double, omega: Double) {
-        val xPower = pidX.update(vx, Bot.localizer.velocity.x, Bot.dt).coerceIn(-1.0, 1.0)
-        val yPower = pidY.update(vy, Bot.localizer.velocity.y, Bot.dt).coerceIn(-1.0, 1.0)
+        val velocity = Bot.localizer.velocity.copy()
+        velocity.rotate(Bot.localizer.pose.heading) // Convert to local coordinates
+        val xPower = pidX.update(vx, velocity.x, Bot.dt).coerceIn(-1.0, 1.0)
+        val yPower = pidY.update(vy, velocity.y, Bot.dt).coerceIn(-1.0, 1.0)
         val omegaPower = pidOmega.update(omega, Bot.localizer.velocity.heading, Bot.dt).coerceIn(-1.0, 1.0)
         moveVector(xPower, yPower, omegaPower, 1.0, false)
     }
