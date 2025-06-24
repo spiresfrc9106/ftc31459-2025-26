@@ -88,4 +88,8 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
         TODO("Not yet implemented")
     }
 
+    override fun getClosestPointT(position: Pose): Double {
+        TODO("Not yet implemented")
+    }
+
 }
