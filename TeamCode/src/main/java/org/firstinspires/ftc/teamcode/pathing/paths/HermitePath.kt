@@ -21,24 +21,22 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
     override var headingInterpolationMode: HeadingInterpolationMode = HeadingInterpolationMode.LINEAR
 
     // Hermite basis functions
-    val basis00 = Polynomial(arrayOf(1.0, 0.0, -3.0, 2.0))
-    val basis01 = Polynomial(arrayOf(0.0, 1.0, -2.0, 1.0))
-    val basis10 = Polynomial(arrayOf(0.0, 0.0, -3.0, 2.0))
-    val basis11 = Polynomial(arrayOf(0.0, 0.0, -1.0, 1.0))
+    private val basis00 = Polynomial(arrayOf(1.0, 0.0, -3.0, 2.0))
+    private val basis01 = Polynomial(arrayOf(0.0, 1.0, -2.0, 1.0))
+    private val basis10 = Polynomial(arrayOf(0.0, 0.0, -3.0, 2.0))
+    private val basis11 = Polynomial(arrayOf(0.0, 0.0, -1.0, 1.0))
 
-    val xHermite = PolynomialUtils.addPolynomials(arrayOf(basis00.scale(startPose.x), basis01.scale(startVelocity[0]),
+    private val xHermite = PolynomialUtils.addPolynomials(arrayOf(basis00.scale(startPose.x), basis01.scale(startVelocity[0]),
                                                           basis10.scale(endPose.x), basis11.scale(endVelocity[0])))
-    val yHermite = PolynomialUtils.addPolynomials(arrayOf(basis00.scale(startPose.y), basis01.scale(startVelocity[1]),
+    private val yHermite = PolynomialUtils.addPolynomials(arrayOf(basis00.scale(startPose.y), basis01.scale(startVelocity[1]),
                                                           basis10.scale(endPose.y), basis11.scale(endVelocity[1])))
 
+    // Compound path for simplified calculations
+    private val compoundPath: CompoundPath = createCompoundPath(100)
+
     override fun getLength(): Double {
-        var xDer = xHermite.derivative()
-        var yDer = yHermite.derivative()
-        xDer = xDer.square()
-        yDer = yDer.square()
-
-        TODO("figure out how to do square root ajshdpfapjds")
-
+        // Use the compound path to estimate the length
+        return compoundPath.getLength()
     }
 
     override fun getHeading(t: Double): Double {
@@ -54,7 +52,6 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
         val y = yHermite.eval(t)
         val heading = getHeading(t)
         return Pose(x, y, heading)
-
     }
 
     override fun getTangent(t: Double): Pose {
@@ -81,15 +78,26 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
         denominator = denominator.pow(1.5)
 
         return (numerator / denominator)
-
     }
 
-    override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double {
-        TODO("Not yet implemented")
+    override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double? {
+        // Estimate the lookahead point using the compound path
+        return compoundPath.getLookaheadPointT(position, lookaheadDistance)
     }
 
     override fun getClosestPointT(position: Pose): Double {
-        TODO("Not yet implemented")
+        // Estimate the closest point on the compound path
+        return compoundPath.getClosestPointT(position)
     }
 
+    fun createCompoundPath(resolution: Int): CompoundPath {
+        // Create a compound linear path to represent the Hermite path
+        val compoundPathBuilder = CompoundPath.PolyLineBuilder()
+        for (i in 0 until resolution) {
+            val t = i.toDouble() / (resolution - 1)
+            val point = getPoint(t)
+            compoundPathBuilder.addPoint(point)
+        }
+        return compoundPathBuilder.build()
+    }
 }
