@@ -1,16 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto
 
 import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import org.firstinspires.ftc.teamcode.Bot
 import org.firstinspires.ftc.teamcode.helpers.DashboardPlotter
-import org.firstinspires.ftc.teamcode.helpers.TelemetryInterface
 import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.pathing.paths.CompoundPath
 import org.firstinspires.ftc.teamcode.pathing.follower.DriveConstants
-import org.firstinspires.ftc.teamcode.pathing.motionprofiles.TrapezoidalMotionProfile
 import kotlin.math.PI
 
 @Autonomous(name = "Pathing Test", group = "Testing")

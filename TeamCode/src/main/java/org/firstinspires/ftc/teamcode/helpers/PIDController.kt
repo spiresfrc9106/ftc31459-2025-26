@@ -10,7 +10,6 @@ class PIDController(val Kp: Double, val Ki: Double, val Kd: Double) {
 
     fun update(target: Double, current: Double, dt: Double, normalizeRadians: Boolean = false): Double {
         val error = if (normalizeRadians) Angle.normalizeRadians(target - current) else target - current
-        Bot.telemetryPacket.put("Heading Error", error)
         integral += error * dt
         integral = integral.coerceIn(-1.0, 1.0) // Clamp integral to prevent windup
         val derivative = (error - lastError) / dt

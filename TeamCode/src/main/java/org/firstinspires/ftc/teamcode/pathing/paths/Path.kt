@@ -102,9 +102,9 @@ interface Path {
      * @param lookaheadDistance The radius of the circle
      * @return The point at which the circle intersects the path
      */
-    fun getLookaheadPoint(position: Pose, lookaheadDistance: Double): Pose {
+    fun getLookaheadPoint(position: Pose, lookaheadDistance: Double): Pose? {
         val t = getLookaheadPointT(position, lookaheadDistance)
-        return getPoint(t ?: 0.0) // If no intersection, return start point
+        return if (t != null) getPoint(t) else null
     }
 
     /**
