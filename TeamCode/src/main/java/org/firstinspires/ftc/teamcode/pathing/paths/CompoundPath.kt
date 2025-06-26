@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.localization.Pose
  * @param paths A list of paths that make up the compound path.
  */
 class CompoundPath(val paths: List<Path>) : Path {
-    constructor(vararg paths: Path) : this(paths.toList())
 
     override var startPose: Pose = paths.first().startPose
     override var endPose: Pose = paths.last().endPose
@@ -98,27 +97,12 @@ class CompoundPath(val paths: List<Path>) : Path {
             return this
         }
 
-        fun build(): CompoundPath {
-            return CompoundPath(paths)
-        }
-    }
-
-    class PolyLineBuilder {
-        private val points = mutableListOf<Pose>()
-
-        fun addPoint(point: Pose): PolyLineBuilder {
-            points.add(point)
+        fun addPaths(vararg newPaths: Path): Builder {
+            paths.addAll(newPaths)
             return this
         }
 
         fun build(): CompoundPath {
-            if (points.size < 2) {
-                throw IllegalArgumentException("At least two points are required to create a polyline")
-            }
-            val paths = mutableListOf<Path>()
-            for (i in 0 until points.size - 1) {
-                paths.add(LinearPath(points[i], points[i + 1]))
-            }
             return CompoundPath(paths)
         }
     }

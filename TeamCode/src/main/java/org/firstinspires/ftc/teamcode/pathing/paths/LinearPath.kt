@@ -106,4 +106,39 @@ class LinearPath (override var startPose: Pose = Pose(), override var endPose: P
 
         return t
     }
+
+    class Builder {
+        private val points = mutableListOf<Pose>()
+
+        fun addPoint(point: Pose): Builder {
+            points.add(point)
+            return this
+        }
+
+        fun addPoints(vararg newPoints: Pose): Builder {
+            points.addAll(newPoints)
+            return this
+        }
+
+        /**
+         * Builds a LinearPath or CompoundPath based on the number of points added.
+         * If only two points are added, a LinearPath is created.
+         * If more than two points are added, a CompoundPath is created with LinearPaths between each pair of points.
+         * @return A LinearPath or CompoundPath based on the points added
+         */
+        fun build(): Path {
+            if (points.size < 2) {
+                throw IllegalArgumentException("At least two points are required to create a LinearPath")
+            }
+            if (points.size == 2) {
+                return LinearPath(points[0], points[1])
+            } else {
+                val paths = mutableListOf<Path>()
+                for (i in 0 until points.size - 1) {
+                    paths.add(LinearPath(points[i], points[i + 1]))
+                }
+                return CompoundPath(paths)
+            }
+        }
+    }
 }

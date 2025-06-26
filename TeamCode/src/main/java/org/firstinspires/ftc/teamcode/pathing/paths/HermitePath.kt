@@ -32,7 +32,7 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
                                                           basis10.scale(endPose.y), basis11.scale(endVelocity.y)))
 
     // Compound path for simplified calculations
-    private val compoundPath: CompoundPath = createCompoundPath(100)
+    private val compoundPath: Path = createCompoundPath(100)
 
     override fun getLength(): Double {
         // Use the compound path to estimate the length
@@ -96,14 +96,14 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
         TODO("Not yet implemented")
     }
 
-    fun createCompoundPath(resolution: Int): CompoundPath {
+    fun createCompoundPath(resolution: Int): Path {
         // Create a compound linear path to represent the Hermite path
-        val compoundPathBuilder = CompoundPath.PolyLineBuilder()
+        val builder = LinearPath.Builder()
         for (i in 0..resolution) {
             val t = i.toDouble() / resolution
             val point = getPoint(t)
-            compoundPathBuilder.addPoint(point)
+            builder.addPoint(point)
         }
-        return compoundPathBuilder.build()
+        return builder.build()
     }
 }
