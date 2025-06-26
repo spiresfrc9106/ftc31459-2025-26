@@ -53,6 +53,7 @@ class PathingTest : OpMode() {
         Bot.telemetryPacket.put("Current Velocity", Bot.localizer.velocity.getLength())
 
         // Field view
+        DashboardPlotter.plotGrid(Bot.telemetryPacket)
         DashboardPlotter.plotBotPosition(Bot.telemetryPacket, Bot.localizer.pose)
         DashboardPlotter.plotPath(Bot.telemetryPacket, Bot.follower.path!!)
         DashboardPlotter.plotPoint(Bot.telemetryPacket, Bot.follower.lookaheadPoint)

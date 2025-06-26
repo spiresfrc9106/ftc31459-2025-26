@@ -79,6 +79,14 @@ class DashboardPlotter {
                 .strokeCircle(dashboardCenter.x, dashboardCenter.y, radius * 160.0 / 366.0) // Scale radius to match field size
         }
 
+        fun plotGrid(packet: TelemetryPacket) {
+            packet.fieldOverlay()
+                .setStroke("#888888")
+                .drawGrid(0.0, 0.0, 144.0, 144.0, 7, 7)
+                .setStroke("#222222")
+                .drawGrid(0.0, 0.0, 144.0, 144.0, 2, 2)
+        }
+
         fun clearPreviousPositions() {
             previousPositions.clear()
         }
