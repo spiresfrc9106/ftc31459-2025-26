@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.helpers.DashboardPlotter
 import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.pathing.paths.CompoundPath
 import org.firstinspires.ftc.teamcode.pathing.follower.DriveConstants
+import org.firstinspires.ftc.teamcode.pathing.paths.LinearPath
 import kotlin.math.PI
 
 @Autonomous(name = "Pathing Test", group = "Testing")
@@ -18,7 +19,7 @@ class PathingTest : OpMode() {
         Bot.initialize(hardwareMap, telemetry)
 
         // Set target path for the follower
-        Bot.follower.path = CompoundPath.PolyLineBuilder()
+        Bot.follower.path = LinearPath.Builder()
             .addPoint(Pose(0.0, 0.0, 0.0))
             .addPoint(Pose(100.0, 0.0, -PI / 2))
             .addPoint(Pose(200.0, 100.0, -PI / 2))
