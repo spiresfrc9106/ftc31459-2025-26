@@ -81,7 +81,7 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
     }
 
     override fun getLookaheadPoint(position: Pose, lookaheadDistance: Double): Pose? {
-        TODO("Not yet implemented")
+        return compoundPath.getLookaheadPoint(position, lookaheadDistance)
     }
 
     override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double? {
@@ -89,7 +89,7 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
     }
 
     override fun getClosestPoint(position: Pose): Pose {
-        TODO("Not yet implemented")
+        return compoundPath.getClosestPoint(position)
     }
 
     override fun getClosestPointT(position: Pose): Double {

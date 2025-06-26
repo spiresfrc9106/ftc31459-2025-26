@@ -80,6 +80,9 @@ class LinearPath (override var startPose: Pose = Pose(), override var endPose: P
         var t1 = (-b + sqrt(discriminant)) / (2 * a)
         var t2 = (-b - sqrt(discriminant)) / (2 * a)
 
+        // If both t values are outside [0, 1], return null
+        if ((t1 < 0 || t1 > 1) && (t2 < 0 || t2 > 1)) return null
+
         // Coerce t values to the range [0, 1]
         t1 = t1.coerceIn(0.0, 1.0)
         t2 = t2.coerceIn(0.0, 1.0)
