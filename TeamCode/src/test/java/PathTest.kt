@@ -58,4 +58,18 @@ class PathTest {
 //        assert(path.getLength() == sqrt(2.0))
         assert (path.getLookaheadPoint(Pose(0.0, 0.0), 1.0)?.roughlyEquals(Pose(0.66873797,0.743498165)) == true)
     }
+
+    @Test
+    fun hermiteCompoundPath() {
+        val path = HermitePath.Builder()
+            .addPoint(Pose(0.0,0.0), Pose(0.0, 1.0))
+            .addPoint(Pose(1.0,0.0))
+            .addPoint(Pose(1.0,1.0), Pose(1.0, 1.0))
+            .addPoint(Pose(0.0,1.0), Pose (0.0, 1.0))
+            .build()
+        for (i in 0..50) {
+            val t = i/50.0
+            println(path.getPoint(t).toDesmosString())
+        }
+    }
 }
