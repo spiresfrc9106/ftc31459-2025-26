@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.helpers
 
+
 // Note: coeffs are least to most significant
 class Polynomial(coeffs: Array<Double>) {
     val coefficients = coeffs
@@ -17,13 +18,31 @@ class Polynomial(coeffs: Array<Double>) {
 
     // --- Transformations ---
 
-    fun scale(a: Double) : Polynomial {
+    fun vShift(a: Double): Polynomial {
+        val newCoeffs = coefficients.copyOf()
+        newCoeffs[0] += a
+        return Polynomial(newCoeffs)
+    }
+
+    fun vRef(): Polynomial {
+        val newCoeffs = Array(coefficients.size) {0.0}
+        for (i in coefficients.indices) {
+            newCoeffs[i] = -coefficients[i]
+        }
+        return Polynomial(newCoeffs)
+    }
+
+    fun vScale(a: Double) : Polynomial {
         val newCoeffs = Array(coefficients.size) {0.0}
         for (i in coefficients.indices) {
             newCoeffs[i] = coefficients[i] * a
         }
         return Polynomial(newCoeffs)
     }
+
+//    fun hShift(a: Double): Polynomial {
+//
+//    }
 
     fun square() : Polynomial {
         val newCoeffs = Array(coefficients.size * 2 - 1) {0.0}

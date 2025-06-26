@@ -72,6 +72,10 @@ class Pose(var x: Double = 0.0, var y: Double = 0.0, var heading: Double = 0.0) 
         return "(x=${"%.3f".format(x)}, y=${"%.3f".format(y)}, heading=${"%.3f".format(heading)})"
     }
 
+    fun toDesmosString(): String {
+        return "(${"%.3f".format(x)}, ${"%.3f".format(y)})"
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Pose) return false
