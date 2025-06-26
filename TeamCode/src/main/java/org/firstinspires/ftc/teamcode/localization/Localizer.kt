@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.localization
 
 interface Localizer {
-    // TODO: Normalize heading from -PI to PI and correctly calculate velocity
-
     /** Current pose of the robot */
     val pose: Pose
 

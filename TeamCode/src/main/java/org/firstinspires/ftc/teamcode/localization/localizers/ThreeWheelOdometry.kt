@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.HardwareNames
+import org.firstinspires.ftc.teamcode.helpers.Angle
 import org.firstinspires.ftc.teamcode.localization.Localizer
 import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.localization.constants.ThreeWheelOdometryConstants
@@ -62,13 +63,13 @@ class ThreeWheelOdometry (hardwareMap: HardwareMap, startPose: Pose = Pose()) : 
         val newPose = Pose(
             pose.x + sin(pose.heading) * a + cos(pose.heading) * b,
             pose.y + cos(pose.heading) * a - sin(pose.heading) * b,
-            pose.heading + dTheta
+            Angle.normalizeRadians(pose.heading + dTheta)
         )
 
         val newVelocity = Pose(
             (newPose.x - pose.x) / deltaTime,
             (newPose.y - pose.y) / deltaTime,
-            (newPose.heading - pose.heading) / deltaTime
+            dTheta / deltaTime
         )
 
         acceleration = Pose(

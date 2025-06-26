@@ -18,7 +18,6 @@ class MecanumBase (hardwareMap: HardwareMap) {
     val motors = arrayOf(leftFront, leftBack, rightFront, rightBack)
 
     // PIDF controllers for velocity control
-    // TODO: Tune velocity PIDF controllers
     private val pidX = PIDFController(DriveConstants.PIDF_X)
     private val pidY = PIDFController(DriveConstants.PIDF_Y)
     private val pidOmega = PIDFController(DriveConstants.PIDF_OMEGA)
