@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.hardware.MecanumBase
+import org.firstinspires.ftc.teamcode.hardware.VoltageHandler
 import org.firstinspires.ftc.teamcode.helpers.DashboardPlotter
 import org.firstinspires.ftc.teamcode.helpers.FileLogger
 import org.firstinspires.ftc.teamcode.localization.Localizer
@@ -33,11 +34,15 @@ class Bot () {
 
         lateinit var localizer: Localizer
 
+        lateinit var voltageHandler: VoltageHandler
+            private set
+
         fun initialize(hardwareMap: HardwareMap, telemetry: Telemetry) {
             this.telemetry = telemetry
             mecanumBase = MecanumBase(hardwareMap)
             localizer = Pinpoint(hardwareMap)
             follower = Follower()
+            voltageHandler = VoltageHandler(hardwareMap)
         }
 
         fun update() {

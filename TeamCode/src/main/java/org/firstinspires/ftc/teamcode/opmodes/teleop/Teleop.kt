@@ -38,6 +38,7 @@ class Teleop : OpMode() {
         telemetry.addData("Field Centric", driver1.fieldCentric)
         telemetry.addData("Pose", Bot.localizer.pose)
         telemetry.addData("Velocity", Bot.localizer.velocity)
+        telemetry.addData("Voltage", Bot.voltageHandler.getVoltage())
         telemetry.update()
 
         DashboardPlotter.plotBotPosition(Bot.telemetryPacket, Bot.localizer.pose)
