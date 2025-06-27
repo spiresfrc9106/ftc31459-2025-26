@@ -21,6 +21,8 @@ class Pinpoint (hardwareMap: HardwareMap, startPose: Pose = Pose()) : Localizer 
     // Pinpoint driver
     private val pinpoint = hardwareMap.get(GoBildaPinpointDriver::class.java, HardwareNames.PINPOINT)
 
+    private var prevVelocity = Pose()
+
     init {
         pinpoint.setOffsets(PinpointConstants.X_POD_OFFSET, PinpointConstants.Y_POD_OFFSET, DistanceUnit.MM)
         pinpoint.setEncoderResolution(PinpointConstants.ENCODER_RESOLUTION)
@@ -46,6 +48,12 @@ class Pinpoint (hardwareMap: HardwareMap, startPose: Pose = Pose()) : Localizer 
             pinpoint.getVelX(DistanceUnit.CM),
             -pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS)
         )
+        acceleration = Pose(
+            (velocity.x - prevVelocity.x) / deltaTime,
+            (velocity.y - prevVelocity.y) / deltaTime,
+            (velocity.heading - prevVelocity.heading) / deltaTime
+        )
+        prevVelocity = velocity
     }
 
     override fun reset(pose: Pose) {
