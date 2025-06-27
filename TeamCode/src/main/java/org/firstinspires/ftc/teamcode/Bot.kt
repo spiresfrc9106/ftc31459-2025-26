@@ -59,7 +59,7 @@ class Bot () {
 
         fun sendTelemetryPacket() {
             FtcDashboard.getInstance().sendTelemetryPacket(telemetryPacket)
-            telemetryPacket = TelemetryPacket(false) // Reset the packet for the next loop
+            telemetryPacket = TelemetryPacket() // Reset the packet for the next loop
         }
 
         fun stop() {

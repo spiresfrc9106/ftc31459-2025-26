@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.helpers.FileLogger
 import org.firstinspires.ftc.teamcode.helpers.PIDController
 import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.pathing.motionprofiles.MotionProfile
+import org.firstinspires.ftc.teamcode.pathing.motionprofiles.TrapezoidalMotionProfile
 import org.firstinspires.ftc.teamcode.pathing.paths.Path
 import kotlin.math.sqrt
 
@@ -12,6 +13,11 @@ class Follower {
     private val TAG = "Follower"
 
     var path: Path? = null
+        set(value) {
+            field = value
+            // Reset the motion profile when the path changes
+            motionProfile = if (path == null) null else TrapezoidalMotionProfile(path!!.getLength())
+        }
     var motionProfile: MotionProfile? = null
     var lookaheadPointT = 0.0
     var lookaheadPoint = Pose()
@@ -35,7 +41,7 @@ class Follower {
         val dy = lookaheadPoint.y - Bot.localizer.pose.y
         val distance = sqrt(dx * dx + dy * dy)
 
-        val targetSpeed = getTargetSpeed(lookaheadPointT)
+        val targetSpeed = getTargetSpeed()
 
         // Calculate target rotational velocity using PID
         var targetRotationSpeed = rotationPID.update(lookaheadPoint.heading, Bot.localizer.pose.heading, Bot.dt, normalizeRadians = true)
@@ -61,14 +67,15 @@ class Follower {
         )
     }
 
-    fun getTargetSpeed(t: Double): Double {
+    fun getTargetSpeed(): Double {
         if (motionProfile == null) {
             val slowDownDistance = DriveConstants.LOOK_AHEAD_DISTANCE * 2.0
             val scale = Bot.localizer.pose.distanceTo(path!!.endPose) / slowDownDistance
             val velocityScale = scale.coerceIn(0.0, 1.0)
-            return DriveConstants.MAX_DRIVE_VELOCITY * 0.5 * velocityScale
+            return (DriveConstants.MAX_DRIVE_VELOCITY * 0.5 * velocityScale).coerceAtLeast(DriveConstants.MIN_DRIVE_VELOCITY)
         }
-        // TODO: Implement a motion profile
-        return motionProfile!!.getVelocity(t).coerceAtMost(DriveConstants.MAX_DRIVE_VELOCITY)
+        val closestPointT = path!!.getClosestPointT(Bot.localizer.pose)
+        val distanceTraveled = path!!.getLengthSoFar(closestPointT)
+        return motionProfile!!.getVelocity(distanceTraveled).coerceIn(DriveConstants.MIN_DRIVE_VELOCITY, DriveConstants.MAX_DRIVE_VELOCITY)
     }
 }

@@ -59,6 +59,7 @@ class CompoundPath(val paths: List<Path>) : Path {
 
     override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double? {
         // Return the farthest intersection point along the compound path
+        if (position.distanceTo(endPose) < lookaheadDistance) { return 1.0 }
         for (i in paths.size - 1 downTo 0) {
             val lookaheadPointT = paths[i].getLookaheadPointT(position, lookaheadDistance)
             if (lookaheadPointT != null) {
@@ -87,6 +88,20 @@ class CompoundPath(val paths: List<Path>) : Path {
         }
 
         return closestT
+    }
+
+    override fun getLengthSoFar(t: Double): Double {
+        // Calculate the total length up to the given t value
+        val pathIndex = (t * paths.size).toInt().coerceIn(0, paths.size - 1)
+        val localT = t * paths.size - pathIndex
+
+        var length = 0.0
+        for (i in 0 until pathIndex) {
+            length += paths[i].getLength()
+        }
+        length += paths[pathIndex].getLengthSoFar(localT)
+
+        return length
     }
 
     class Builder {

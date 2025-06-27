@@ -57,19 +57,24 @@ class PathTest {
         assert(path.getPoint(1.0) == Pose(1.0, 1.0))
 //        assert(path.getLength() == sqrt(2.0))
         assert (path.getLookaheadPoint(Pose(0.0, 0.0), 1.0)?.roughlyEquals(Pose(0.66873797,0.743498165)) == true)
+        println(path.getPoint(0.42))
+        println(path.compoundPath.getPoint(0.42))
     }
 
     @Test
     fun hermiteCompoundPath() {
-        val path = HermitePath.Builder()
-            .addPoint(Pose(0.0,0.0), Pose(0.0, 1.0))
-            .addPoint(Pose(1.0,0.0))
-            .addPoint(Pose(1.0,1.0), Pose(1.0, 1.0))
-            .addPoint(Pose(0.0,1.0), Pose (0.0, 1.0))
-            .build()
-        for (i in 0..50) {
-            val t = i/50.0
-            println(path.getPoint(t).toDesmosString())
-        }
+        val path = HermitePath(
+            Pose(2.0, -3.0),
+            Pose(6.0, 1.0),
+            startVelocity = Pose(1.0, 3.0),
+            endVelocity = Pose(1.0, -2.0),
+        )
+        println(path.getLookaheadPoint(Pose(0.0, 0.0), 5.0))
+        println(path.getPoint(path.getLookaheadPointT(Pose(0.0, 0.0), 5.0)!!))
+        println(path.getLength())
+        println(path.getLengthSoFar(0.0))
+        println(path.getLengthSoFar(0.5))
+        println(path.getLengthSoFar(0.75))
+        println(path.getLengthSoFar(1.0))
     }
 }

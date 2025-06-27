@@ -30,10 +30,17 @@ interface Path {
     var endPose: Pose
 
     /**
-     * Gets the length of the path
+     * Gets the arc length of the path
      * @return The length of the path
      */
     fun getLength(): Double
+
+    /**
+     * Gets the arc length from the start of the path to the given parameter t
+     * @param t The parameter value in the range [0, 1]
+     * @return The length of the path from the start to the given parameter
+     */
+    fun getLengthSoFar(t: Double): Double
 
     /**
      * Gets the heading at the given parameter t

@@ -33,11 +33,16 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
 
     // Compound path for simplified calculations
     private val resolution: Int = 100 // Resolution for the compound path
-    private val compoundPath: Path = createCompoundPath(resolution)
+    val compoundPath: Path = createCompoundPath(resolution)
 
     override fun getLength(): Double {
         // Use the compound path to estimate the length
         return compoundPath.getLength()
+    }
+
+    override fun getLengthSoFar(t: Double): Double {
+        // Use the compound path to estimate the length so far
+        return compoundPath.getLengthSoFar(t)
     }
 
     override fun getHeading(t: Double): Double {
@@ -81,33 +86,12 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
         return (numerator / denominator)
     }
 
-    override fun getLookaheadPoint(position: Pose, lookaheadDistance: Double): Pose? {
-        return compoundPath.getLookaheadPoint(position, lookaheadDistance)
-    }
-
     override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double? {
-        val lookaheadPoint = getLookaheadPoint(position, lookaheadDistance) ?: return null
-        return getClosestPointT(lookaheadPoint)
-    }
-
-    override fun getClosestPoint(position: Pose): Pose {
-        return compoundPath.getClosestPoint(position)
+        return compoundPath.getLookaheadPointT(position, lookaheadDistance)
     }
 
     override fun getClosestPointT(position: Pose): Double {
-        // Search for the parameter t on the Hermite path that corresponds to the lookahead point
-        var closestT = 0.0
-        var closestDistance = Double.MAX_VALUE
-        for (i in 0..resolution) {
-            val t = i.toDouble() / resolution
-            val point = getPoint(t)
-            val distance = point.distanceTo(position)
-            if (distance < closestDistance) {
-                closestDistance = distance
-                closestT = t
-            }
-        }
-        return closestT
+        return compoundPath.getClosestPointT(position)
     }
 
     fun createCompoundPath(resolution: Int): Path {

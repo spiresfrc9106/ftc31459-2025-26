@@ -23,6 +23,10 @@ class LinearPath (override var startPose: Pose = Pose(), override var endPose: P
         return startPose.distanceTo(endPose)
     }
 
+    override fun getLengthSoFar(t: Double): Double {
+        return getLength() * t
+    }
+
     override fun getHeading(t: Double): Double {
         when (headingInterpolationMode) {
             HeadingInterpolationMode.LINEAR -> {
@@ -60,6 +64,8 @@ class LinearPath (override var startPose: Pose = Pose(), override var endPose: P
     }
 
     override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double? {
+        if (position.distanceTo(endPose) < lookaheadDistance) { return 1.0 }
+
         val dx = endPose.x - startPose.x
         val dy = endPose.y - startPose.y
         val fx = startPose.x - position.x

@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.helpers.DashboardPlotter
 import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.pathing.paths.CompoundPath
 import org.firstinspires.ftc.teamcode.pathing.follower.DriveConstants
+import org.firstinspires.ftc.teamcode.pathing.paths.HermitePath
 import org.firstinspires.ftc.teamcode.pathing.paths.LinearPath
 import kotlin.math.PI
 
@@ -19,17 +20,19 @@ class PathingTest : OpMode() {
         Bot.initialize(hardwareMap, telemetry)
 
         // Set target path for the follower
-        Bot.follower.path = LinearPath.Builder()
-            .addPoint(Pose(0.0, 0.0, 0.0))
-            .addPoint(Pose(100.0, 0.0, -PI / 2))
-            .addPoint(Pose(200.0, 100.0, -PI / 2))
-            .addPoint(Pose(200.0, 200.0, PI))
+        Bot.follower.path = HermitePath.Builder()
+            .addPoint(Pose(0.0,0.0))
+            .addPoint(Pose(50.0,0.0))
+            .addPoint(Pose(50.0,50.0))
+            .addPoint(Pose(0.0,50.0))
+            .addPoint(Pose(0.0,100.0))
+            .addPoint(Pose(50.0,100.0))
             .build()
 
         Bot.telemetryPacket.put("Target Heading", Bot.follower.lookaheadPoint.heading)
         Bot.telemetryPacket.put("Expected Heading", Bot.follower.path!!.getClosestPoint(Bot.localizer.pose).heading)
         Bot.telemetryPacket.put("Current Heading", Bot.localizer.pose.heading)
-        Bot.telemetryPacket.put("Target Velocity", Bot.follower.getTargetSpeed(Bot.follower.lookaheadPointT))
+        Bot.telemetryPacket.put("Target Velocity", Bot.follower.getTargetSpeed())
         Bot.telemetryPacket.put("Current Velocity", Bot.localizer.velocity.getLength())
         Bot.sendTelemetryPacket()
     }
@@ -49,7 +52,7 @@ class PathingTest : OpMode() {
         Bot.telemetryPacket.put("Target Heading", Bot.follower.lookaheadPoint.heading)
         Bot.telemetryPacket.put("Expected Heading", Bot.follower.path!!.getClosestPoint(Bot.localizer.pose).heading)
         Bot.telemetryPacket.put("Current Heading", Bot.localizer.pose.heading)
-        Bot.telemetryPacket.put("Target Velocity", Bot.follower.getTargetSpeed(Bot.follower.lookaheadPointT))
+        Bot.telemetryPacket.put("Target Velocity", Bot.follower.getTargetSpeed())
         Bot.telemetryPacket.put("Current Velocity", Bot.localizer.velocity.getLength())
 
         // Field view

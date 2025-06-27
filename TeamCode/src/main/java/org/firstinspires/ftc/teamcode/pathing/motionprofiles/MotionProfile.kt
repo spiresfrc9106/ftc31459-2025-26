@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.pathing.motionprofiles
 
 interface MotionProfile {
     /**
-     * Gets the velocity at the given parameter t
-     * @param t The parameter value in the range [0, 1]
-     * @return The velocity at the given parameter
+     * Gets the velocity at the given distance traveled.
+     * @param s The distance already traveled.
+     * @return The velocity at the given distance traveled.
      */
-    fun getVelocity(t: Double): Double
+    fun getVelocity(s: Double): Double
 }
