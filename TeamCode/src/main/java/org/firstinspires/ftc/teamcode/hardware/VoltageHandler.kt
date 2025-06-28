@@ -9,7 +9,7 @@ class VoltageHandler(hardwareMap: HardwareMap) {
     fun getVoltage(): Double {
         var lowestVoltage = Double.POSITIVE_INFINITY
         for (sensor in voltageSensors) {
-            var voltage = sensor.voltage
+            val voltage = sensor.voltage
             if (voltage > 0 && voltage < lowestVoltage) {
                 lowestVoltage = voltage
             }

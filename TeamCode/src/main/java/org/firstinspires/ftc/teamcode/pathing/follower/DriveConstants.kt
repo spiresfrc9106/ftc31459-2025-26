@@ -73,10 +73,6 @@ class DriveConstants {
             DcMotorSimple.Direction.REVERSE, // Left Back
             DcMotorSimple.Direction.FORWARD, // Right Front
             DcMotorSimple.Direction.FORWARD, // Right Back
-//            DcMotorSimple.Direction.REVERSE, // Left Front
-//            DcMotorSimple.Direction.REVERSE, // Left Back
-//            DcMotorSimple.Direction.REVERSE, // Right Front
-//            DcMotorSimple.Direction.FORWARD, // Right Back
         )
     }
 }
