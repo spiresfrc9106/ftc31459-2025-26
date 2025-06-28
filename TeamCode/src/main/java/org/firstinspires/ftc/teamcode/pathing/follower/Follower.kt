@@ -7,7 +7,9 @@ import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.pathing.motionprofiles.MotionProfile
 import org.firstinspires.ftc.teamcode.pathing.motionprofiles.TrapezoidalMotionProfile
 import org.firstinspires.ftc.teamcode.pathing.paths.Path
+import kotlin.math.abs
 import kotlin.math.sqrt
+import kotlin.math.min
 
 class Follower {
     private val TAG = "Follower"
@@ -76,6 +78,18 @@ class Follower {
         }
         val closestPointT = path!!.getClosestPointT(Bot.localizer.pose)
         val distanceTraveled = path!!.getLengthSoFar(closestPointT)
-        return motionProfile!!.getVelocity(distanceTraveled).coerceIn(DriveConstants.MIN_DRIVE_VELOCITY, DriveConstants.MAX_DRIVE_VELOCITY)
+        var curvature = path!!.getCurvature(closestPointT)
+
+        if (curvature.isNaN()) { // Curvature DNE at the start and end of paths
+            curvature = 0.0
+        }
+        curvature = curvature.coerceIn(-1000.0, 1000.0) // Prevent singularities
+        Bot.telemetryPacket.put("Curvature", curvature)
+
+        // Max velocity based on the curvature of the path
+        val curveMaxVel = sqrt(DriveConstants.MAX_DRIVE_ACCELERATION / abs(curvature))
+        // Velocity given by the motion profile
+        val profileVel = motionProfile!!.getVelocity(distanceTraveled).coerceIn(DriveConstants.MIN_DRIVE_VELOCITY, DriveConstants.MAX_DRIVE_VELOCITY)
+        return min(profileVel, curveMaxVel)
     }
 }
