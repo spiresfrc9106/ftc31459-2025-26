@@ -29,7 +29,10 @@ class DriveConstants {
         const val MIN_DRIVE_VELOCITY = 5.0
 
         /** The maximum drive acceleration in cm per second squared. */
-        const val MAX_DRIVE_ACCELERATION = 75.0
+        const val MAX_DRIVE_ACCELERATION = 50.0
+
+        /** The maximum centripetal acceleration that the robot can handle in cm/s^2 **/
+        const val MAX_CENTRIPETAL_ACCELERATION = (70.0 * 70.0) / 25.0
 
         /** Look ahead distance in cm for the Pure Pursuit algorithm. */
         const val LOOK_AHEAD_DISTANCE = 15.0

@@ -13,6 +13,7 @@ import kotlin.math.min
 
 class Follower {
     private val TAG = "Follower"
+    private val rotationPID = PIDController(DriveConstants.PID_ROTATION)
 
     var path: Path? = null
         set(value) {
@@ -24,19 +25,26 @@ class Follower {
     var lookaheadPointT = 0.0
     var lookaheadPoint = Pose()
 
-    val rotationPID = PIDController(DriveConstants.PID_ROTATION)
+    var enabled = true
+        set(value) {
+            field = value
+            if (!value) {
+                Bot.mecanumBase.stop() // Stop the robot when disabled
+            }
+        }
 
     /**
      * Update drive powers to follow the path using Pure Pursuit.
      * Assumes that the path is already set and that the pose has been updated
      */
     fun update() {
-        if (path == null) {
-            return
-        }
+        if (path == null) return
+
         // Get the lookahead point on the path (default to 0.0 if not found)
         lookaheadPointT = path!!.getLookaheadPointT(Bot.localizer.pose, DriveConstants.LOOK_AHEAD_DISTANCE) ?: 0.0
         lookaheadPoint = path!!.getPoint(lookaheadPointT)
+
+        if (!enabled) return
 
         // Move towards the lookahead point
         val dx = lookaheadPoint.x - Bot.localizer.pose.x
@@ -87,7 +95,7 @@ class Follower {
         Bot.telemetryPacket.put("Curvature", curvature)
 
         // Max velocity based on the curvature of the path
-        val curveMaxVel = sqrt(DriveConstants.MAX_DRIVE_ACCELERATION / abs(curvature))
+        val curveMaxVel = sqrt(DriveConstants.MAX_CENTRIPETAL_ACCELERATION / abs(curvature))
         // Velocity given by the motion profile
         val profileVel = motionProfile!!.getVelocity(distanceTraveled).coerceIn(DriveConstants.MIN_DRIVE_VELOCITY, DriveConstants.MAX_DRIVE_VELOCITY)
         return min(profileVel, curveMaxVel)

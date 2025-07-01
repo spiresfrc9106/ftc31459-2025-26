@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.hardware.VoltageHandler
 import org.firstinspires.ftc.teamcode.helpers.DashboardPlotter
 import org.firstinspires.ftc.teamcode.helpers.FileLogger
 import org.firstinspires.ftc.teamcode.localization.Localizer
+import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.localization.localizers.Pinpoint
 import org.firstinspires.ftc.teamcode.pathing.follower.Follower
 
@@ -37,10 +38,10 @@ class Bot () {
         lateinit var voltageHandler: VoltageHandler
             private set
 
-        fun initialize(hardwareMap: HardwareMap, telemetry: Telemetry) {
+        fun initialize(hardwareMap: HardwareMap, telemetry: Telemetry, startPose: Pose = Pose()) {
             this.telemetry = telemetry
             mecanumBase = MecanumBase(hardwareMap)
-            localizer = Pinpoint(hardwareMap)
+            localizer = Pinpoint(hardwareMap, startPose)
             follower = Follower()
             voltageHandler = VoltageHandler(hardwareMap)
         }
