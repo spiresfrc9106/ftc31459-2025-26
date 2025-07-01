@@ -58,17 +58,31 @@ class CompoundPath(val paths: List<Path>) : Path {
     }
 
     override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double? {
-        // Return the farthest intersection point along the compound path
-        if (position.distanceTo(endPose) < lookaheadDistance) { return 1.0 }
-        for (i in paths.size - 1 downTo 0) {
-            val lookaheadPointT = paths[i].getLookaheadPointT(position, lookaheadDistance)
-            if (lookaheadPointT != null) {
-                // Calculate the global t value for the intersection point
-                val globalT = (i + lookaheadPointT) / paths.size
-                return globalT
+        // Return the first intersection ahead of the current position
+        val closestT = getClosestPointT(position)
+        val candidates = mutableListOf<Double>()
+
+        for ((i, path) in paths.withIndex()) {
+            val t = path.getLookaheadPointT(position, lookaheadDistance)
+            if (t != null && t != 1.0) {
+                // Adjust t to be relative to the compound path
+                val adjustedT = (t + i) / paths.size
+                if (adjustedT > closestT) {
+                    candidates.add(adjustedT)
+                }
             }
         }
-        return null // No intersection found
+
+        // Check if endPose is within the lookahead circle
+        val endDistance = position.distanceTo(endPose)
+        if (endDistance <= lookaheadDistance) {
+            val endT = 1.0
+            if (endT > closestT) {
+                candidates += endT
+            }
+        }
+
+        return candidates.minOrNull()
     }
 
     override fun getClosestPointT(position: Pose): Double {

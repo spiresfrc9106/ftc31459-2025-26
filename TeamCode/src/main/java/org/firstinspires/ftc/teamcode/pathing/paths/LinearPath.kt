@@ -64,36 +64,38 @@ class LinearPath (override var startPose: Pose = Pose(), override var endPose: P
     }
 
     override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double? {
-        if (position.distanceTo(endPose) < lookaheadDistance) { return 1.0 }
-
         val dx = endPose.x - startPose.x
         val dy = endPose.y - startPose.y
         val fx = startPose.x - position.x
         val fy = startPose.y - position.y
 
-        // Calculate coefficients for the quadratic equation
         val a = dx * dx + dy * dy
         val b = 2 * (fx * dx + fy * dy)
         val c = fx * fx + fy * fy - lookaheadDistance * lookaheadDistance
 
-        // If the discriminant is negative, there are no real solutions
         val discriminant = b * b - 4 * a * c
-        if (discriminant < 0) {
-            return null // No intersection
+        val closestT = getClosestPointT(position)
+        val candidates = mutableListOf<Double>()
+
+        if (discriminant >= 0) {
+            val sqrtDiscriminant = sqrt(discriminant)
+            val t1 = (-b + sqrtDiscriminant) / (2 * a)
+            val t2 = (-b - sqrtDiscriminant) / (2 * a)
+
+            // Add valid intersection points
+            candidates += listOf(t1, t2).filter { it in 0.0..1.0 && it > closestT }
         }
 
-        // Calculate the two possible t values using the quadratic formula
-        var t1 = (-b + sqrt(discriminant)) / (2 * a)
-        var t2 = (-b - sqrt(discriminant)) / (2 * a)
+        // Check if endPose is within the lookahead circle
+        val endDistance = position.distanceTo(endPose)
+        if (endDistance <= lookaheadDistance) {
+            val endT = 1.0
+            if (endT > closestT) {
+                candidates += endT
+            }
+        }
 
-        // If both t values are outside [0, 1], return null
-        if ((t1 < 0 || t1 > 1) && (t2 < 0 || t2 > 1)) return null
-
-        // Coerce t values to the range [0, 1]
-        t1 = t1.coerceIn(0.0, 1.0)
-        t2 = t2.coerceIn(0.0, 1.0)
-
-        return if (t1 > t2) t1 else t2 // Return the larger t value
+        return candidates.minOrNull()
     }
 
     override fun getClosestPointT(position: Pose): Double {

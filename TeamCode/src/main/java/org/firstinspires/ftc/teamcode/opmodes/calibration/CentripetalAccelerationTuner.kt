@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.calibration
 
-import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import org.firstinspires.ftc.teamcode.Bot

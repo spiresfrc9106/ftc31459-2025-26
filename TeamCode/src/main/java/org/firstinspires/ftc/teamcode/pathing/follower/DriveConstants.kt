@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.pathing.follower
 
 import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import kotlin.math.min
 
 @Config
 class DriveConstants {
