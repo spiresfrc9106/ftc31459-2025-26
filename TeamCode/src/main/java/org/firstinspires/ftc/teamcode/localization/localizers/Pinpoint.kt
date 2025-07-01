@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.localization.localizers
 
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit
 import org.firstinspires.ftc.teamcode.HardwareNames
-import org.firstinspires.ftc.teamcode.helpers.Angle
 import org.firstinspires.ftc.teamcode.localization.Localizer
 import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.localization.constants.PinpointConstants
@@ -28,7 +28,7 @@ class Pinpoint (hardwareMap: HardwareMap, startPose: Pose = Pose()) : Localizer 
         pinpoint.setEncoderResolution(PinpointConstants.ENCODER_RESOLUTION)
         pinpoint.setEncoderDirections(PinpointConstants.X_ENCODER_DIRECTION, PinpointConstants.Y_ENCODER_DIRECTION)
         pinpoint.recalibrateIMU()
-        pinpoint.setPosition(Pose2D(DistanceUnit.CM, startPose.x, startPose.y, AngleUnit.RADIANS, startPose.heading))
+        pinpoint.setPosition(Pose2D(DistanceUnit.CM, startPose.y, -startPose.x, AngleUnit.RADIANS, -startPose.heading))
         pinpoint.update()
     }
 

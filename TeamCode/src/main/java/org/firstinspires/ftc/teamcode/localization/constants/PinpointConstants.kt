@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.localization.constants
 
-import org.firstinspires.ftc.teamcode.localization.localizers.GoBildaPinpointDriver
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
 
 class PinpointConstants {
     companion object {
