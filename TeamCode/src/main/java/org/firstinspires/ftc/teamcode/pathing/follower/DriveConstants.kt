@@ -33,9 +33,6 @@ class DriveConstants {
         /** The maximum centripetal acceleration that the robot can handle in cm/s^2 **/
         const val MAX_CENTRIPETAL_ACCELERATION = (70.0 * 70.0) / 25.0
 
-        /** Look ahead distance in cm for the Pure Pursuit algorithm. */
-        const val LOOK_AHEAD_DISTANCE = 15.0
-
         /** The threshold in cm to consider the target reached.*/
         const val POSITION_THRESHOLD = 0.5
 

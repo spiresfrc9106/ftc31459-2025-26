@@ -61,11 +61,9 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
     }
 
     override fun getTangent(t: Double): Pose {
-        val xDer = xHermite.derivative()
-        val yDer = yHermite.derivative()
-        val dxdt = xDer.derEval(t)
-        val dydt = yDer.derEval(t)
-        return Pose(dxdt, dydt)
+        val xDer = xHermite.nDerEval(t, 1) // First derivative
+        val yDer = yHermite.nDerEval(t, 1)
+        return Pose(xDer, yDer)
     }
 
     override fun getNormal(t: Double): Pose {
@@ -110,6 +108,7 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
     class Builder {
         private val points = mutableListOf<Pose>()
         private val velocities = mutableListOf<Pose?>()
+        private var t = 0.0 // Cardinal spline tension parameter (higher values = sharper turns)
 
         fun addPoint(point: Pose, velocity: Pose? = null): Builder {
             points.add(point)
@@ -117,14 +116,12 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
             return this
         }
 
-        // Throw in points, not velocities
-        private fun getAvVelocity(p0: Pose, p1: Pose, p2: Pose): Pose {
-            val dx1 = p1.x - p0.x
-            val dy1 = p1.y - p0.y
-            val dx2 = p2.x - p1.x
-            val dy2 = p2.y - p1.y
-
-            return Pose((dx1 + dx2)/2, (dy1 + dy2)/2)
+        fun setTension(tension: Double): Builder {
+            if (tension < 0.0 || tension > 1.0) {
+                throw IllegalArgumentException("Tension must be in the range [0, 1]")
+            }
+            this.t = tension
+            return this
         }
 
         fun build(): Path {
@@ -142,8 +139,16 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
                     val endPoint = points[i+1]
                     val nextPoint = if (i < points.size - 2) points[i+2] else null
 
-                    val defaultStartVel = if (i > 0) getAvVelocity(prevPoint!!, startPoint, endPoint) else Pose()
-                    val defaultEndVel = if (i < points.size - 2) getAvVelocity(startPoint, endPoint, nextPoint!!) else Pose()
+                    // Use cardinal spline velocities by default
+                    val defaultStartVel = when {
+                        i > 0 -> (endPoint - prevPoint!!) * (1.0 - t) / 2.0
+                        else  -> (endPoint - startPoint) * (1.0 - t) // Path endpoint
+                    }
+
+                    val defaultEndVel = when {
+                        i < points.size - 2 -> (nextPoint!! - startPoint) * (1.0 - t) / 2.0
+                        else                -> (endPoint - startPoint) * (1.0 - t) // Path endpoint
+                    }
 
                     paths.add(HermitePath(startPoint, endPoint, velocities[i] ?: defaultStartVel, velocities[i+1] ?: defaultEndVel))
                 }

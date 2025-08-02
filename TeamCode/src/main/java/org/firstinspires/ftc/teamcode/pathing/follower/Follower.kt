@@ -23,6 +23,17 @@ class Follower {
             reset()
         }
 
+    var targetState: MotionState? = null
+        get() {
+            if (motionProfile == null) {
+                FileLogger.error("Follower", "Motion profile is not set")
+                return null
+            }
+            // Get the current time in seconds since the follower started
+            val t = elapsedTime.seconds()
+            return motionProfile!![t]
+        }
+
     fun update() {
         if (motionProfile == null || path == null) {
             FileLogger.error("Follower", "No path or motion profile set")
@@ -87,7 +98,11 @@ class Follower {
                 val t = s / totalDistance
                 val k = path!!.getCurvature(t)
                 val curveMaxVelocity = sqrt(DriveConstants.MAX_CENTRIPETAL_ACCELERATION / abs(k))
-                DriveConstants.MAX_DRIVE_VELOCITY.coerceAtMost(curveMaxVelocity)
+                if (curveMaxVelocity.isNaN()) {
+                    DriveConstants.MAX_DRIVE_VELOCITY
+                } else {
+                    min(DriveConstants.MAX_DRIVE_VELOCITY, curveMaxVelocity)
+                }
             }
             val accelerationConstraint = { s: Double ->
                 // Constant acceleration constraint
