@@ -73,6 +73,12 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
         return Pose(-tangent.y, tangent.x)
     }
 
+    override fun getSecondDerivative(t: Double): Pose {
+        val xDer2 = xHermite.nDerEval(t, 2) // Second derivative
+        val yDer2 = yHermite.nDerEval(t, 2)
+        return Pose(xDer2, yDer2)
+    }
+
     override fun getCurvature(t: Double): Double {
         val xDer = xHermite.derEval(t)
         val yDer = yHermite.derEval(t)
@@ -84,10 +90,6 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
         denominator = denominator.pow(1.5)
 
         return (numerator / denominator)
-    }
-
-    override fun getLookaheadPointT(position: Pose, lookaheadDistance: Double): Double? {
-        return compoundPath.getLookaheadPointT(position, lookaheadDistance)
     }
 
     override fun getClosestPointT(position: Pose): Double {
@@ -104,7 +106,6 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
         }
         return builder.build()
     }
-
 
     class Builder {
         private val points = mutableListOf<Pose>()

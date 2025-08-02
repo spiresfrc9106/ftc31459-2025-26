@@ -3,9 +3,7 @@ package org.firstinspires.ftc.teamcode.hardware
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.teamcode.Bot
 import org.firstinspires.ftc.teamcode.HardwareNames
-import org.firstinspires.ftc.teamcode.helpers.PIDFController
 import org.firstinspires.ftc.teamcode.pathing.follower.DriveConstants
 import kotlin.math.abs
 
@@ -16,11 +14,6 @@ class MecanumBase (hardwareMap: HardwareMap) {
     val rightFront = hardwareMap.get(DcMotorEx::class.java, HardwareNames.DRIVE_RIGHT_FRONT)
     val rightBack = hardwareMap.get(DcMotorEx::class.java, HardwareNames.DRIVE_RIGHT_BACK)
     val motors = arrayOf(leftFront, leftBack, rightFront, rightBack)
-
-    // PIDF controllers for velocity control
-    private val pidX = PIDFController(DriveConstants.PIDF_X)
-    private val pidY = PIDFController(DriveConstants.PIDF_Y)
-    private val pidOmega = PIDFController(DriveConstants.PIDF_OMEGA)
 
     init {
         // Initialize motors
@@ -63,22 +56,6 @@ class MecanumBase (hardwareMap: HardwareMap) {
         leftBack.velocity = ((y - adjX + rotation) / denominator) * power * DriveConstants.MAX_DRIVE_MOTOR_VELOCITY
         rightFront.velocity = ((y - adjX - rotation) / denominator) * power * DriveConstants.MAX_DRIVE_MOTOR_VELOCITY
         rightBack.velocity = ((y + adjX - rotation) / denominator) * power * DriveConstants.MAX_DRIVE_MOTOR_VELOCITY
-    }
-
-    /**
-     * Uses PIDF to move the robot in a direction specified by velocity components.
-     * Robot centric (local coordinates) movement is used.
-     * @param vx The x component of the velocity in cm/s (right is positive).
-     * @param vy The y component of the velocity in cm/s (forward is positive).
-     * @param omega The angular velocity in radians/second (clockwise is positive).
-     */
-    fun moveVelocity(vx: Double, vy: Double, omega: Double) {
-        val velocity = Bot.localizer.velocity.copy()
-        velocity.rotate(Bot.localizer.pose.heading) // Convert to local coordinates
-        val xPower = pidX.update(vx, velocity.x, Bot.dt).coerceIn(-1.0, 1.0)
-        val yPower = pidY.update(vy, velocity.y, Bot.dt).coerceIn(-1.0, 1.0)
-        val omegaPower = pidOmega.update(omega, Bot.localizer.velocity.heading, Bot.dt).coerceIn(-1.0, 1.0)
-        moveVector(xPower, yPower, omegaPower, 1.0, false)
     }
 
     /**

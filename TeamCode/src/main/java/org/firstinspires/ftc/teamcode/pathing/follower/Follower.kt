@@ -1,103 +1,106 @@
 package org.firstinspires.ftc.teamcode.pathing.follower
 
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.Bot
 import org.firstinspires.ftc.teamcode.helpers.FileLogger
 import org.firstinspires.ftc.teamcode.helpers.PIDController
-import org.firstinspires.ftc.teamcode.localization.Pose
-import org.firstinspires.ftc.teamcode.pathing.motionprofiles.MotionProfile
-import org.firstinspires.ftc.teamcode.pathing.motionprofiles.TrapezoidalMotionProfile
+import org.firstinspires.ftc.teamcode.pathing.motionprofile.MotionProfile
+import org.firstinspires.ftc.teamcode.pathing.motionprofile.MotionProfileGenerator
+import org.firstinspires.ftc.teamcode.pathing.motionprofile.MotionState
 import org.firstinspires.ftc.teamcode.pathing.paths.Path
-import kotlin.math.abs
-import kotlin.math.sqrt
-import kotlin.math.min
+import kotlin.math.*
 
 class Follower {
-    private val TAG = "Follower"
-    private val rotationPID = PIDController(DriveConstants.PID_ROTATION)
+    private var motionProfile: MotionProfile? = null
+    private var elapsedTime: ElapsedTime = ElapsedTime()
+    private var xPID = PIDController(DriveConstants.PID_X)
+    private var yPID = PIDController(DriveConstants.PID_Y)
 
     var path: Path? = null
         set(value) {
             field = value
-            // Reset the motion profile when the path changes
-            motionProfile = if (path == null) null else TrapezoidalMotionProfile(path!!.getLength())
-        }
-    var motionProfile: MotionProfile? = null
-    var lookaheadPointT = 0.0
-    var lookaheadPoint = Pose()
-
-    var enabled = true
-        set(value) {
-            field = value
-            if (!value) {
-                Bot.mecanumBase.stop() // Stop the robot when disabled
-            }
+            // Reset the follower
+            reset()
         }
 
-    /**
-     * Update drive powers to follow the path using Pure Pursuit.
-     * Assumes that the path is already set and that the pose has been updated
-     */
     fun update() {
-        if (path == null) return
+        if (motionProfile == null || path == null) {
+            FileLogger.error("Follower", "No path or motion profile set")
+            return
+        }
+        // Get the time since the follower started
+        val t = elapsedTime.seconds()
+        // Get the target state from the motion profile
+        val targetState = motionProfile!![t]
+        // Calculate the target point based on distance along the path
+        val pathT = targetState.x / path!!.getLength()
+        val targetPoint = path!!.getPoint(pathT)
+        val targetPointFirstDerivative = path!!.getTangent(pathT).normalize()
+        val targetPointSecondDerivative = path!!.getSecondDerivative(pathT)
 
-        // Get the lookahead point on the path (default to 0.0 if not found)
-        lookaheadPointT = path!!.getLookaheadPointT(Bot.localizer.pose, DriveConstants.LOOK_AHEAD_DISTANCE) ?: 0.0
-        lookaheadPoint = path!!.getPoint(lookaheadPointT)
+        // Calculate the position error and convert to robot-centric coordinates
+        val positionError = targetPoint - Bot.localizer.pose
+        positionError.rotate(-Bot.localizer.pose.heading)
 
-        if (!enabled) return
+        // TODO: Heading interpolation
 
-        // Move towards the lookahead point
-        val dx = lookaheadPoint.x - Bot.localizer.pose.x
-        val dy = lookaheadPoint.y - Bot.localizer.pose.y
-        val distance = sqrt(dx * dx + dy * dy)
+        // Calculate the PID outputs
+        var xPower = xPID.update(positionError.x, Bot.dt)
+        var yPower = yPID.update(positionError.y, Bot.dt)
 
-        val targetSpeed = getTargetSpeed()
+        // Calculate 2D target velocity and acceleration based on path derivatives
+        val targetVelocity = targetPointFirstDerivative * targetState.v
+        val targetAcceleration = targetPointSecondDerivative * (targetState.v * targetState.v) +
+                targetPointFirstDerivative * targetState.a
 
-        // Calculate target rotational velocity using PID
-        var targetRotationSpeed = rotationPID.update(lookaheadPoint.heading, Bot.localizer.pose.heading, Bot.dt, normalizeRadians = true)
-        targetRotationSpeed = targetRotationSpeed.coerceIn(-DriveConstants.MAX_ROTATIONAL_VELOCITY, DriveConstants.MAX_ROTATIONAL_VELOCITY)
+        // Convert target velocity and acceleration to robot-centric coordinates
+        targetVelocity.rotate(-Bot.localizer.pose.heading)
+        targetAcceleration.rotate(-Bot.localizer.pose.heading)
 
-        // Convert global coordinates dx, dy to local coordinates
-        val difference = Pose(dx, dy)
-        difference.rotate(Bot.localizer.pose.heading)
+        // Add feedforward terms
+        xPower += (targetVelocity.x * DriveConstants.KV) +
+                (targetAcceleration.x * DriveConstants.KA) +
+                (sign(targetVelocity.x) * DriveConstants.KS)
 
-        Bot.mecanumBase.moveVelocity(difference.x / distance * targetSpeed, difference.y / distance * targetSpeed, targetRotationSpeed)
+        yPower += (targetVelocity.y * DriveConstants.KV) +
+                (targetAcceleration.y * DriveConstants.KA) +
+                (sign(targetVelocity.y) * DriveConstants.KS)
+
+        // Drive based on the calculated powers
+        Bot.mecanumBase.moveVector(xPower, yPower, 0.0)
     }
 
-    fun reachedTarget(): Boolean {
-        if (path == null) {
-            FileLogger.error(TAG, "Path is null")
-            return false
-        }
-        val goal = path!!.endPose
-        return goal.roughlyEquals(
-            Bot.localizer.pose,
-            DriveConstants.POSITION_THRESHOLD,
-            DriveConstants.ROTATION_THRESHOLD
-        )
+    private fun reset() {
+        // Recalculate the motion profile when the path is set
+        calculateMotionProfile()
+        // Reset the elapsed time
+        elapsedTime.reset()
     }
 
-    fun getTargetSpeed(): Double {
-        if (motionProfile == null) {
-            val slowDownDistance = DriveConstants.LOOK_AHEAD_DISTANCE * 2.0
-            val scale = Bot.localizer.pose.distanceTo(path!!.endPose) / slowDownDistance
-            val velocityScale = scale.coerceIn(0.0, 1.0)
-            return (DriveConstants.MAX_DRIVE_VELOCITY * 0.5 * velocityScale).coerceAtLeast(DriveConstants.MIN_DRIVE_VELOCITY)
+    private fun calculateMotionProfile() {
+        if (path != null) {
+            val totalDistance = path!!.getLength()
+            val startState = MotionState(0.0, 0.0, 0.0)
+            val endState = MotionState(totalDistance, 0.0, 0.0)
+            val velocityConstraint = { s: Double ->
+                // Velocity constraint based on path curvature
+                val t = s / totalDistance
+                val k = path!!.getCurvature(t)
+                val curveMaxVelocity = sqrt(DriveConstants.MAX_CENTRIPETAL_ACCELERATION / abs(k))
+                DriveConstants.MAX_DRIVE_VELOCITY.coerceAtMost(curveMaxVelocity)
+            }
+            val accelerationConstraint = { s: Double ->
+                // Constant acceleration constraint
+                DriveConstants.MAX_DRIVE_ACCELERATION
+            }
+            motionProfile = MotionProfileGenerator.generateMotionProfile(
+                startState,
+                endState,
+                velocityConstraint,
+                accelerationConstraint,
+            )
+        } else {
+            motionProfile = null
         }
-        val closestPointT = path!!.getClosestPointT(Bot.localizer.pose)
-        val distanceTraveled = path!!.getLengthSoFar(closestPointT)
-        var curvature = path!!.getCurvature(closestPointT)
-
-        if (curvature.isNaN()) { // Curvature DNE at the start and end of paths
-            curvature = 0.0
-        }
-        curvature = curvature.coerceIn(-1000.0, 1000.0) // Prevent singularities
-        Bot.telemetryPacket.put("Curvature", curvature)
-
-        // Max velocity based on the curvature of the path
-        val curveMaxVel = sqrt(DriveConstants.MAX_CENTRIPETAL_ACCELERATION / abs(curvature))
-        // Velocity given by the motion profile
-        val profileVel = motionProfile!!.getVelocity(distanceTraveled).coerceIn(DriveConstants.MIN_DRIVE_VELOCITY, DriveConstants.MAX_DRIVE_VELOCITY)
-        return min(profileVel, curveMaxVel)
     }
 }

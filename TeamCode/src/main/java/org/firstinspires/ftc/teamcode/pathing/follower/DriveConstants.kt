@@ -42,32 +42,21 @@ class DriveConstants {
         /** The threshold in degrees to consider the target reached.*/
         const val ROTATION_THRESHOLD = 0.01
 
-        @JvmField var PIDF_X = arrayOf(
-            0.015,   // P
-            0.0,    // I
-            0.0025,  // D
-            0.006   // F
+        @JvmField var PID_X = arrayOf(
+            0.0,  // P
+            0.0,  // I
+            0.0,  // D
         )
 
-        @JvmField var PIDF_Y = arrayOf(
-            0.015,  // P
-            0.0,    // I
-            0.0025,  // D
-            0.005   // F
+        @JvmField var PID_Y = arrayOf(
+            0.0,  // P
+            0.0,  // I
+            0.0,  // D
         )
 
-        @JvmField var PIDF_OMEGA = arrayOf(
-            0.1,   // P
-            0.0,   // I
-            0.01,  // D
-            0.18   // F
-        )
-
-        @JvmField var PID_ROTATION = arrayOf(
-            5.0,  // P
-            0.05, // I
-            25.0, // D
-        )
+        @JvmField var KV = 1.0 // Velocity constant for feedforward
+        @JvmField var KA = 1.0 // Acceleration constant for feedforward
+        @JvmField var KS = 1.0 // Static constant for feedforward
 
         /** The directions of the drive motors. */
         val MOTOR_DIRECTIONS = arrayOf(
