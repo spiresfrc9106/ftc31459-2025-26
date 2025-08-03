@@ -129,7 +129,8 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
                 throw IllegalArgumentException("At least two points are required to create a HermitePath")
             }
             else if (points.size == 2) {
-                return HermitePath(points[0], points[1], velocities[0]?: Pose(), velocities[1]?: Pose())
+                val defaultVel = (points[1] - points[0]) * (1.0 - t) // Default start velocity
+                return HermitePath(points[0], points[1], velocities[0]?: defaultVel, velocities[1]?: defaultVel)
             }
             else {
                 val paths = mutableListOf<HermitePath>()
