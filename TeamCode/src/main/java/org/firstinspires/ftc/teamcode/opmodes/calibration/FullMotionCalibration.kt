@@ -103,7 +103,7 @@ class FullMotionCalibration : OpMode() {
         val accel = Bot.localizer.acceleration.y
         when (testStage) {
             TestStage.ACCEL -> {
-                Bot.mecanumBase.moveVector(0.0, 1.0, 0.0, power, false)
+                Bot.mecanumBase.setDrivePower(0.0, 1.0, 0.0, power, false)
 
                 if (accel > maxAccelF) { maxAccelF = accel } // Update max accel
                 if (accel > accelTolerance) { reachedAccel = true }
@@ -114,7 +114,7 @@ class FullMotionCalibration : OpMode() {
                 }
             }
             TestStage.HOLD -> {
-                Bot.mecanumBase.moveVector(0.0, 1.0, 0.0, power, false)
+                Bot.mecanumBase.setDrivePower(0.0, 1.0, 0.0, power, false)
 
                 if (velocity > maxVelocityF) { maxVelocityF = velocity }
 
@@ -139,7 +139,7 @@ class FullMotionCalibration : OpMode() {
         val accel = -Bot.localizer.acceleration.y
         when (testStage) {
             TestStage.ACCEL -> {
-                Bot.mecanumBase.moveVector(0.0, -1.0, 0.0, power, false)
+                Bot.mecanumBase.setDrivePower(0.0, -1.0, 0.0, power, false)
 
                 if (accel > maxAccelB) { maxAccelB = accel } // Update max accel
                 if (accel > accelTolerance) { reachedAccel = true }
@@ -150,7 +150,7 @@ class FullMotionCalibration : OpMode() {
                 }
             }
             TestStage.HOLD -> {
-                Bot.mecanumBase.moveVector(0.0, -1.0, 0.0, power, false)
+                Bot.mecanumBase.setDrivePower(0.0, -1.0, 0.0, power, false)
 
                 if (velocity > maxVelocityB) { maxVelocityB = velocity }
 
@@ -174,7 +174,7 @@ class FullMotionCalibration : OpMode() {
         val accel = -Bot.localizer.acceleration.x
         when (testStage) {
             TestStage.ACCEL -> {
-                Bot.mecanumBase.moveVector(-1.0, 0.0, 0.0, power, false)
+                Bot.mecanumBase.setDrivePower(-1.0, 0.0, 0.0, power, false)
 
                 if (accel > maxAccelL) { maxAccelL = accel } // Update max accel
                 if (accel > accelTolerance) { reachedAccel = true }
@@ -185,7 +185,7 @@ class FullMotionCalibration : OpMode() {
                 }
             }
             TestStage.HOLD -> {
-                Bot.mecanumBase.moveVector(-1.0, 0.0, 0.0, power, false)
+                Bot.mecanumBase.setDrivePower(-1.0, 0.0, 0.0, power, false)
 
                 if (velocity > maxVelocityL) { maxVelocityL = velocity }
 
@@ -209,7 +209,7 @@ class FullMotionCalibration : OpMode() {
         val accel = Bot.localizer.acceleration.x
         when (testStage) {
             TestStage.ACCEL -> {
-                Bot.mecanumBase.moveVector(1.0, 0.0, 0.0, power, false)
+                Bot.mecanumBase.setDrivePower(1.0, 0.0, 0.0, power, false)
 
                 if (accel > maxAccelR) { maxAccelR = accel } // Update max accel
                 if (accel > accelTolerance) { reachedAccel = true }
@@ -220,7 +220,7 @@ class FullMotionCalibration : OpMode() {
                 }
             }
             TestStage.HOLD -> {
-                Bot.mecanumBase.moveVector(1.0, 0.0, 0.0, power, false)
+                Bot.mecanumBase.setDrivePower(1.0, 0.0, 0.0, power, false)
 
                 if (velocity > maxVelocityR) { maxVelocityR = velocity }
 

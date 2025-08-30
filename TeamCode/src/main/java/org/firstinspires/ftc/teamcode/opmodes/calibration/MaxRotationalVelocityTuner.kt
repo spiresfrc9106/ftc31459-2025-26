@@ -33,7 +33,7 @@ class MaxRotationalVelocityTuner : OpMode() {
 
         // Rotate for 5 seconds
         if (timer.seconds() < 5.0) {
-            Bot.mecanumBase.moveVector(0.0, 0.0, accel, adjustForStrafe = false)
+            Bot.mecanumBase.setDrivePower(0.0, 0.0, accel, adjustForStrafe = false)
             // Update max velocity
             if (Bot.localizer.velocity.heading > maxVelocity) {
                 maxVelocity = Bot.localizer.velocity.heading

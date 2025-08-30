@@ -6,35 +6,31 @@ import org.junit.Test
 class MotionProfileTest {
     @Test
     fun test() {
-//        val path = HermitePath.Builder()
-//            .addPoint(Pose(0.0, 0.0))
-//            .addPoint(Pose(25.0, 25.0))
-//            .addPoint(Pose(50.0, 0.0))
-//            .setTension(0.5)
-//            .build()
-//        val follower = Follower()
-//        follower.path = path
-//        val motionProfile = follower.motionProfile!!
-//        val startState = motionProfile.start()
-//        val endState = motionProfile.end()
-//        val duration = motionProfile.duration()
-//        println("Start State: $startState")
-//        println("End State: $endState")
-//        println("Duration: $duration")
-//        for (i in 0..100) {
-//            val t = i / 100.0 * duration
-//            val state = motionProfile[t]
-//            println("$t: $state")
-//        }
+        val path = HermitePath.Builder()
+            .addPoint(Pose(0.0, 0.0))
+            .addPoint(Pose(0.0, 100.0))
+            .build()
+        val follower = Follower()
+        follower.path = path
+        val motionProfile = follower.motionProfile!!
+        val startState = motionProfile.start()
+        val endState = motionProfile.end()
+        val duration = motionProfile.duration()
+        println("Start State: $startState")
+        println("End State: $endState")
+        println("Duration: $duration")
+        for (i in 0..100) {
+            val t = i / 100.0 * duration
+            val state = motionProfile[t]
+            println("$t: $state")
+        }
     }
 
     @Test
     fun followerTest() {
         val path = HermitePath.Builder()
             .addPoint(Pose(0.0, 0.0))
-            .addPoint(Pose(25.0, 25.0))
-            .addPoint(Pose(50.0, 0.0))
-            .setTension(0.5)
+            .addPoint(Pose(0.0, 100.0))
             .build()
         val follower = Follower()
         follower.path = path
@@ -67,9 +63,7 @@ class MotionProfileTest {
     fun tempTest() {
         val path = HermitePath.Builder()
             .addPoint(Pose(0.0, 0.0))
-            .addPoint(Pose(25.0, 25.0))
-            .addPoint(Pose(50.0, 0.0))
-            .setTension(0.5)
+            .addPoint(Pose(0.0, 100.0))
             .build()
 
         for (i in 0..100) {

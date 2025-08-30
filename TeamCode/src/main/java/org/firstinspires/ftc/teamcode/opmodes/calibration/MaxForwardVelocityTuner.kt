@@ -26,7 +26,7 @@ class MaxForwardVelocityTuner : OpMode() {
 
         // Drive forward 150 cm
         if (Bot.localizer.pose.y < 150) {
-            Bot.mecanumBase.moveVector(0.0, 1.0*accel, 0.0, adjustForStrafe = false)
+            Bot.mecanumBase.setDrivePower(0.0, 1.0*accel, 0.0, adjustForStrafe = false)
             // Update max velocity
             if (Bot.localizer.velocity.y > maxVelocity) {
                 maxVelocity = Bot.localizer.velocity.y

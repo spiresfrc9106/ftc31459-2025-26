@@ -28,7 +28,7 @@ class MaxHorizontalVelocityTuner : OpMode() {
 
         // Drive right 150 cm
         if (Bot.localizer.pose.x < 150) {
-            Bot.mecanumBase.moveVector(1.0*accel, 0.0, 0.0, adjustForStrafe = false)
+            Bot.mecanumBase.setDrivePower(1.0*accel, 0.0, 0.0, adjustForStrafe = false)
             // Update max velocity
             if (Bot.localizer.velocity.x > maxVelocity) {
                 maxVelocity = Bot.localizer.velocity.x

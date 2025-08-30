@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.teamcode.hardware.MecanumBase
+import org.firstinspires.ftc.teamcode.hardware.drivebase.MecanumBase
 import org.firstinspires.ftc.teamcode.hardware.VoltageHandler
 import org.firstinspires.ftc.teamcode.helpers.DashboardPlotter
 import org.firstinspires.ftc.teamcode.helpers.FileLogger
@@ -51,7 +51,7 @@ class Bot () {
             localizer.update(dt / 1000.0) // Convert milliseconds to seconds
 
             // Update follower
-            follower.update()
+            if (follower.path != null) follower.update()
 
             // Update delta time
             dt = timer.milliseconds() - prevTime
