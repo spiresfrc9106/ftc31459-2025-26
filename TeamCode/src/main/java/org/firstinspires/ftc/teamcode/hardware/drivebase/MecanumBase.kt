@@ -69,16 +69,16 @@ class MecanumBase (hardwareMap: HardwareMap) {
         val strafeFactor = 1.0 // No strafe adjustment for now
         val k = (MecanumConstants.Companion.TRACK_WIDTH + MecanumConstants.Companion.WHEEL_BASE) / 2.0
         val velocities = listOf(
-            vel.x - strafeFactor * vel.y - k * vel.heading,
-            vel.x + strafeFactor * vel.y - k * vel.heading,
-            vel.x - strafeFactor * vel.y + k * vel.heading,
-            vel.x + strafeFactor * vel.y + k * vel.heading,
+            vel.y + strafeFactor * vel.x + k * vel.heading, // left front
+            vel.y - strafeFactor * vel.x + k * vel.heading, // left back
+            vel.y - strafeFactor * vel.x - k * vel.heading, // right front
+            vel.y + strafeFactor * vel.x - k * vel.heading, // right back
         )
         val accelerations = listOf(
-            accel.x - strafeFactor * accel.y - k * accel.heading,
-            accel.x + strafeFactor * accel.y - k * accel.heading,
-            accel.x - strafeFactor * accel.y + k * accel.heading,
-            accel.x + strafeFactor * accel.y + k * accel.heading,
+            accel.y + strafeFactor * accel.x + k * accel.heading, // left front
+            accel.y - strafeFactor * accel.x + k * accel.heading, // left back
+            accel.y - strafeFactor * accel.x - k * accel.heading, // right front
+            accel.y + strafeFactor * accel.x - k * accel.heading, // right back
         )
         // Calculate motor powers using feedforward
         val motorPowers = calculateMotorPowers(velocities, accelerations)

@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.localization.Pose
 import org.firstinspires.ftc.teamcode.localization.localizers.Pinpoint
 import org.firstinspires.ftc.teamcode.pathing.follower.Follower
 
-class Bot () {
+class Bot {
     companion object {
         private val timer: ElapsedTime = ElapsedTime()
         private var prevTime: Double = timer.milliseconds()
