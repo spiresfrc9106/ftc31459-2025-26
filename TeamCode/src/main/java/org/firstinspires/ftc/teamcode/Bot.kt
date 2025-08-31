@@ -46,16 +46,17 @@ class Bot {
             voltageHandler = VoltageHandler(hardwareMap)
         }
 
+        /** Updates the bot's systems. Call this before every loop.  */
         fun update() {
+            // Update delta time
+            dt = timer.milliseconds() - prevTime
+            prevTime = timer.milliseconds()
+
             // Update localizer
             localizer.update(dt / 1000.0) // Convert milliseconds to seconds
 
             // Update follower
             if (follower.path != null) follower.update()
-
-            // Update delta time
-            dt = timer.milliseconds() - prevTime
-            prevTime = timer.milliseconds()
         }
 
         fun sendTelemetryPacket() {

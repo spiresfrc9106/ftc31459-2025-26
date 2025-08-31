@@ -25,6 +25,10 @@ class LinearPath (override var startPose: Pose = Pose(), override var endPose: P
         return getLength() * t
     }
 
+    override fun getTFromLength(length: Double): Double {
+        return length / getLength()
+    }
+
     override fun getHeading(t: Double): Double {
         when (headingInterpolationMode) {
             HeadingInterpolationMode.LINEAR -> {

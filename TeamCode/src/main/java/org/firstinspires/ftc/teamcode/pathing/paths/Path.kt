@@ -43,6 +43,13 @@ interface Path {
     fun getLengthSoFar(t: Double): Double
 
     /**
+     * Gets the parameter t value from the given arc length
+     * @param length The arc length
+     * @return The parameter value in the range [0, 1]
+     */
+    fun getTFromLength(length: Double): Double
+
+    /**
      * Gets the heading at the given parameter t
      * @param t The parameter value in the range [0, 1]
      * @return The heading at the given parameter

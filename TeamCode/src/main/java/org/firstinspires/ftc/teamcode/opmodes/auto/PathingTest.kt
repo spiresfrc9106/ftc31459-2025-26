@@ -26,6 +26,7 @@ class PathingTest : OpMode() {
     }
 
     override fun loop() {
+        Bot.update()
         when (state) {
             State.INIT -> {
                 Bot.follower.path = HermitePath.Builder()
@@ -51,7 +52,6 @@ class PathingTest : OpMode() {
                 requestOpModeStop()
             }
         }
-        Bot.update()
     }
 
     override fun stop() {

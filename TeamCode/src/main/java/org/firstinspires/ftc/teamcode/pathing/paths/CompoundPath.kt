@@ -96,6 +96,22 @@ class CompoundPath(val paths: List<Path>) : Path {
         return length
     }
 
+    override fun getTFromLength(length: Double): Double {
+        var accumulatedLength = 0.0
+
+        for (i in paths.indices) {
+            val pathLength = paths[i].getLength()
+            if (accumulatedLength + pathLength >= length) {
+                val remainingLength = length - accumulatedLength
+                val localT = paths[i].getTFromLength(remainingLength)
+                return (i + localT) / paths.size
+            }
+            accumulatedLength += pathLength
+        }
+
+        return 1.0 // If length exceeds total, return end of the compound path
+    }
+
     class Builder {
         private val paths = mutableListOf<Path>()
 

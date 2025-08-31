@@ -56,11 +56,7 @@ class Follower {
         val targetState = motionProfile!![t]
 
         // Calculate the parameter t for the path based on the target state
-        val pathT = if (path!!.getLength() == 0.0) {
-            0.0 // Avoid division by zero if path length is zero
-        } else {
-            targetState.x / path!!.getLength()
-        }.coerceIn(0.0, 1.0) // Ensure t is within [0, 1]
+        val pathT = path!!.getTFromLength(targetState.x)
 
         // Get the target point, first derivative (tangent), and second derivative (acceleration) from the path
         val targetPoint = path!!.getPoint(pathT)

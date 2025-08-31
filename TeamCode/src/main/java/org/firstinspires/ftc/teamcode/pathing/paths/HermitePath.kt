@@ -27,9 +27,9 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
     private val basis11 = Polynomial(arrayOf(0.0, 0.0, -1.0, 1.0))
 
     private val xHermite = PolynomialUtils.addPolynomials(arrayOf(basis00.vScale(startPose.x), basis01.vScale(startVelocity.x),
-                                                          basis10.vScale(endPose.x), basis11.vScale(endVelocity.x)))
+        basis10.vScale(endPose.x), basis11.vScale(endVelocity.x)))
     private val yHermite = PolynomialUtils.addPolynomials(arrayOf(basis00.vScale(startPose.y), basis01.vScale(startVelocity.y),
-                                                          basis10.vScale(endPose.y), basis11.vScale(endVelocity.y)))
+        basis10.vScale(endPose.y), basis11.vScale(endVelocity.y)))
 
     // Compound path for simplified calculations
     private val resolution: Int = 100 // Resolution for the compound path
@@ -43,6 +43,11 @@ class HermitePath(override var startPose: Pose, override var endPose: Pose,
     override fun getLengthSoFar(t: Double): Double {
         // Use the compound path to estimate the length so far
         return compoundPath.getLengthSoFar(t)
+    }
+
+    override fun getTFromLength(length: Double): Double {
+        // Use the compound path to estimate t from length
+        return compoundPath.getTFromLength(length)
     }
 
     override fun getHeading(t: Double): Double {
