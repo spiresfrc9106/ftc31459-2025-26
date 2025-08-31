@@ -76,27 +76,11 @@ class Follower {
         targetVelocity.rotate(-Bot.localizer.pose.heading)
         targetAcceleration.rotate(-Bot.localizer.pose.heading)
 
-        // Velocity error for PID
-        val velocityError = targetVelocity - Bot.localizer.velocity
-
         // TODO: Heading interpolation
 
         // Calculate the PID outputs
-        var xCorrection = xPID.update(positionError.x, Bot.dt, velocityError.x)
-        var yCorrection = yPID.update(positionError.y, Bot.dt, velocityError.y)
-
-//        // Add feedforward terms
-//        xCorrection += (targetVelocity.x * FollowerConstants.KV[0]) +
-//                (targetAcceleration.x * FollowerConstants.KA[0]) +
-//                if (abs(targetVelocity.x) > 1e-3) FollowerConstants.KS[0] * sign(targetVelocity.x) else 0.0
-//                // Only add kS if the target velocity is significant
-//
-//        yCorrection += (targetVelocity.y * FollowerConstants.KV[1]) +
-//                (targetAcceleration.y * FollowerConstants.KA[1]) +
-//                if (abs(targetVelocity.y) > 1e-3) FollowerConstants.KS[1] * sign(targetVelocity.y) else 0.0
-
-        //xCorrection = xCorrection.coerceIn(-1.0, 1.0)
-        //yCorrection = yCorrection.coerceIn(-1.0, 1.0)
+        var xCorrection = xPID.update(positionError.x, Bot.dt)
+        var yCorrection = yPID.update(positionError.y, Bot.dt)
 
         // Calculate adjusted velocity based on PID corrections
         // TODO: Add heading correction

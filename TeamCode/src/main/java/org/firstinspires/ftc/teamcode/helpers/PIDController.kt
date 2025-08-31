@@ -6,14 +6,10 @@ class PIDController(val Kp: Double, val Ki: Double, val Kd: Double) {
     private var integral = 0.0
     private var lastError = 0.0
 
-    fun update(error: Double, dt: Double, velocityError: Double? = null): Double {
+    fun update(error: Double, dt: Double): Double {
         integral += 0.5 * (error + lastError) * dt // Trapezoidal integration
         integral = integral.coerceIn(-1.0, 1.0) // Clamp integral to prevent windup
         var derivative = (error - lastError) / dt
-        // Use velocity error if provided to avoid noise in derivative calculation
-        if (velocityError != null) {
-            derivative = velocityError
-        }
         lastError = error
         return (Kp * error) + (Ki * integral) + (Kd * derivative)
     }
