@@ -28,4 +28,3 @@ android {
 }
 
 apply from: '../build.dependencies.gradle'
-

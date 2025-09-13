@@ -6,7 +6,6 @@ repositories {
         url = 'https://repo.dairy.foundation/releases'
     }
     maven { url = "https://mymaven.bylazar.com/releases" }
-    maven { url = "https://ai.smart-cluster.org/reposilite/releases" }
 }
 
 dependencies {
@@ -19,9 +18,6 @@ dependencies {
     implementation 'org.firstinspires.ftc:FtcCommon:11.0.0'
     implementation 'org.firstinspires.ftc:Vision:11.0.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
-
-    implementation "com.smartcluster:oracleftc:2.2.5"
-
 
     implementation "com.acmerobotics.roadrunner:core:1.0.0"
     implementation "com.acmerobotics.roadrunner:actions:1.0.0"
