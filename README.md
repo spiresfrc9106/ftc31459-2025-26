@@ -7,7 +7,7 @@ This GitHub repository contains the source code that is used to build an Android
 
 ## Team 2939 Members
 For your initial commit to this repo, please add your name below:
-- 
+- Sarea Tam
 
 ## Requirements
 To use this Android Studio project, you will need Android Studio Ladybug (2024.2) or later.
