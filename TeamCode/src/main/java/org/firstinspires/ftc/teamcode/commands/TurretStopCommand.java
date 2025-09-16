@@ -11,7 +11,12 @@ public class TurretStopCommand extends CommandBase {
     }
 
     @Override
-    public void initialize() {
-        turretSubsystem.StopTurret();
+    public void execute() {
+        turretSubsystem.stopTurret();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return !turretSubsystem.isTurretMoving();
     }
 }
