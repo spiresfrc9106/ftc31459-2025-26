@@ -12,6 +12,11 @@ powered up the driver station
 - went to settings 
     - connected to FTC-99999
 - configured the motors to be left_drive and right_drive
+- turned on using encoders
+- following the instructions in: https://rr.brott.dev/docs/v1-0/installation/
+- started following the tuning instructions at: https://rr.brott.dev/docs/v1-0/tuning
+- installed https://acmerobotics.github.io/ftc-dashboard/gettingstarted
+- navigate to http://192.168.43.1:8080/dash on the robot wifi
 - 
 ## NOTICE
 
