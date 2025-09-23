@@ -1,3 +1,18 @@
+## Steps to take
+
+settings: https://ftc-docs.firstinspires.org/en/latest/control_hard_compon/ds_components/index.html
+
+Configure: https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/index.html
+
+powered up the driver station
+
+- connected to internet wifi
+- went through the timezone settings
+- went through the updates
+- went to settings 
+    - connected to FTC-99999
+- configured the motors to be left_drive and right_drive
+- 
 ## NOTICE
 
 This repository contains the public FTC SDK for the DECODE (2025-2026) competition season.
