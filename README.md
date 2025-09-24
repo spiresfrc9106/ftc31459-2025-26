@@ -17,7 +17,13 @@ powered up the driver station
 - started following the tuning instructions at: https://rr.brott.dev/docs/v1-0/tuning
 - installed https://acmerobotics.github.io/ftc-dashboard/gettingstarted
 - navigate to http://192.168.43.1:8080/dash on the robot wifi
-- 
+- The field coordinate system: https://ftc-docs.firstinspires.org/en/latest/game_specific_resources/field_coordinate_system/field-coordinate-system.html
+
+- https://github.com/AusreisserSF/Ftc2024PostSeasonRR_9.2/blob/main/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/auto/RedSideTestAuto.java#L79
+
+- https://github.com/RobiX386/road-runner-quickstart-master/blob/4986460a30f55d9effdedcffb191241394da02a2/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/auto/AutoV2.java#L8
+- ftc dashboard https://www.youtube.com/watch?v=q2ntHU3mm18&t=155s
+- ftc dashboard https://acmerobotics.github.io/ftc-dashboard/gettingstarted
 ## NOTICE
 
 This repository contains the public FTC SDK for the DECODE (2025-2026) competition season.

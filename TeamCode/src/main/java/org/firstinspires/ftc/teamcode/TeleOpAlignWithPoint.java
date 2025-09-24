@@ -10,6 +10,7 @@ import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,6 +18,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 // TODO import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.TankDrive;
 // TODO import org.firstinspires.ftc.teamcode.util.DashboardUtil;
+import org.firstinspires.ftc.teamcode.util.PIDController;
 
 /**
  * This opmode demonstrates how one would implement "align to point behavior" in teleop. You specify
@@ -45,8 +47,8 @@ public class TeleOpAlignWithPoint extends LinearOpMode {
 
     // Declare a PIDF Controller to regulate heading
     // Use the same gains as SampleMecanumDrive's heading controller
-    private PIDFController headingController = new PIDFController(0,0,0, 0
-            // TOOD SampleMecanumDrive.HEADING_PID
+    private PIDController headingController = new PIDController(0,0,0, 0
+            // TODO SampleMecanumDrive.HEADING_PID
     );
 
     // Declare a target vector you'd like your bot to align with
@@ -55,7 +57,7 @@ public class TeleOpAlignWithPoint extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d initialPose = new Pose2d(new Vector2d(0,0),0);
+        Pose2d initialPose = new Pose2d(new Vector2d(-36.0,0), Math.toRadians(180));
         TankDrive drive = new TankDrive(hardwareMap, initialPose);
 
         // We want to turn off velocity control for teleop
@@ -80,7 +82,7 @@ public class TeleOpAlignWithPoint extends LinearOpMode {
 
             // Declare a drive direction
             // Pose representing desired x, y, and angular velocity
-            Pose2d driveDirection = new Pose2d(0,0,0);
+            PoseVelocity2d driveDirection = new PoseVelocity2d( new Vector2d(0,0),0);
 
             telemetry.addData("mode", currentMode);
 
@@ -97,11 +99,7 @@ public class TeleOpAlignWithPoint extends LinearOpMode {
 
                     // Standard teleop control
                     // Convert gamepad input into desired pose velocity
-                    driveDirection = new Pose2d(
-                            -gamepad1.left_stick_y,
-                            -gamepad1.left_stick_x,
-                            -gamepad1.right_stick_x
-                    );
+                    driveDirection = new PoseVelocity2d( new Vector2d(-gamepad1.left_stick_y,-gamepad1.left_stick_x),-gamepad1.right_stick_x);
                     break;
                 case ALIGN_TO_POINT:
                     // Switch back into normal driver control mode if `b` is pressed
@@ -111,19 +109,20 @@ public class TeleOpAlignWithPoint extends LinearOpMode {
 
                     // Create a vector from the gamepad x/y inputs which is the field relative movement
                     // Then, rotate that vector by the inverse of that heading for field centric control
-                    Vector2d fieldFrameInput = new Vector2d(
-                            -gamepad1.left_stick_y,
-                            -gamepad1.left_stick_x
+                    Vector2d fieldFrameInputRotatedMinus90 = new Vector2d(
+                            -gamepad1.left_stick_x,
+                            -1 * -gamepad1.left_stick_y
                     );
-                    Vector2d robotFrameInput = new Vector2d(0,0); // TODO = -poseEstimate.getHeading());
+                    Vector2d robotFrameInput = poseEstimate.heading.vec().times(-1); //  = -poseEstimate.getHeading());
 
                     // Difference between the target vector and the bot's position
-                    Vector2d difference = new Vector2d(0,0); // TODO = targetPosition.minus(poseEstimate.vec());
+                    Vector2d difference = targetPosition.minus(poseEstimate.heading.vec()); //  = targetPosition.minus(poseEstimate.vec());
                     // Obtain the target angle for feedback and derivative for feedforward
                     double theta = difference.angleCast().toDouble();
 
                     // Not technically omega because its power. This is the derivative of atan2
-                    double thetaFF = 0; // TODO -fieldFrameInput.rotated(-Math.PI / 2).dot(difference) / (difference.norm() * difference.norm());
+                    double thetaFF = fieldFrameInputRotatedMinus90.dot(difference) / (difference.norm() * difference.norm());
+                    // = -fieldFrameInput.rotated(-Math.PI / 2).dot(difference) / (difference.norm() * difference.norm());
 
                     // Set the target heading for the heading controller to our desired angle
                     // TODO not the right class for heading control headingController.setTargetPosition(theta);
@@ -135,7 +134,7 @@ public class TeleOpAlignWithPoint extends LinearOpMode {
                             * DriveConstants.TRACK_WIDTH; */
 
                     // Combine the field centric x/y velocity with our derived angular velocity
-                    driveDirection = new Pose2d(
+                    driveDirection = new PoseVelocity2d(
                             robotFrameInput,
                             headingInput
                     );
@@ -160,7 +159,7 @@ public class TeleOpAlignWithPoint extends LinearOpMode {
             fieldOverlay.setStroke("#3F51B5");
             //TODO DashboardUtil.drawRobot(fieldOverlay, poseEstimate);
 
-            //TODO drive.setWeightedDrivePower(driveDirection);
+            drive.setDrivePowers(driveDirection);
 
             // Update the heading controller with our current heading
             // TODO headingController.update(poseEstimate.getHeading());
