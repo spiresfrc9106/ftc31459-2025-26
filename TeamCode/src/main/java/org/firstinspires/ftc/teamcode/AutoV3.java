@@ -35,7 +35,6 @@ public class AutoV3 extends LinearOpMode {
         int level=0;
 
         Pose2d initialPose = new Pose2d(new Vector2d(-24.0,0), Math.toRadians(0));
-        Pose2d secondPose = new Pose2d(new Vector2d(-24.0+1.0,0), Math.toRadians(0));
 
         TankDrive drive = new TankDrive(hardwareMap, initialPose);
         ElapsedTime timer1 = new ElapsedTime();
@@ -49,9 +48,9 @@ public class AutoV3 extends LinearOpMode {
         AccelConstraint endAccelConstraint = new ProfileAccelConstraint(-5, 10);
 
         Action a = drive.actionBuilder(initialPose)
-                .splineTo(new Vector2d(-8, -10), Math.toRadians(60))
-                .splineTo(new Vector2d(0, 15), Math.toRadians(90), endVelConstraint, endAccelConstraint )
-                .splineTo(new Vector2d(0, 24), Math.toRadians(90), endVelConstraint, endAccelConstraint )
+                .splineTo(new Vector2d(24, -68), Math.toRadians(0))
+                .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
+                .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
                 .build();
 
         List<Action> runningActions = new ArrayList<>();
