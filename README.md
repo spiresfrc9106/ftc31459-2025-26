@@ -24,6 +24,12 @@ powered up the driver station
 - https://github.com/RobiX386/road-runner-quickstart-master/blob/4986460a30f55d9effdedcffb191241394da02a2/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/auto/AutoV2.java#L8
 - ftc dashboard https://www.youtube.com/watch?v=q2ntHU3mm18&t=155s
 - ftc dashboard https://acmerobotics.github.io/ftc-dashboard/gettingstarted
+
+android studio wifi -
+ - connect over wifi
+ - open rev hardware client
+ - have rev hardware client open the control hub
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the DECODE (2025-2026) competition season.

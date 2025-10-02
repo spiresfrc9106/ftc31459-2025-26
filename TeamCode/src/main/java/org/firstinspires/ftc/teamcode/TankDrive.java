@@ -20,6 +20,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2dDual;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.ProfileParams;
 import com.acmerobotics.roadrunner.RamseteController;
+import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.TankKinematics;
 import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.TimeTrajectory;
@@ -46,8 +47,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.PoseMessage;
 import org.firstinspires.ftc.teamcode.messages.TankCommandMessage;
@@ -71,18 +76,18 @@ public final class TankDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
 
         // drive model parameters
-        public double inPerTick = 0.038177;
-        public double trackWidthTicks = 294;
+        public double inPerTick = 0.04024;
+        public double trackWidthTicks = 300.8;
 
         // feedforward parameters (in tick units)
-        public double kS =  0.894; // 0.410;
-        public double kV = 0.0195;
-        public double kA = 1e-3;
+        public double kS =  0.868590; // 0.410;
+        public double kV = 0.020354;
+        public double kA = 0.003;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 50;
-        public double minProfileAccel = -15; // was -30
-        public double maxProfileAccel = 25; // was 50
+        public double maxWheelVel = 50; // was 50
+        public double minProfileAccel = -30; // was -30
+        public double maxProfileAccel = 50; // was 50
 
         // turn profile parameters (in radians)
         public double maxAngVel = Math.PI/5.0; // shared with path
@@ -125,12 +130,14 @@ public final class TankDrive {
     private final DownsampledWriter driveCommandWriter = new DownsampledWriter("DRIVE_COMMAND", 50_000_000);
 
     private final DownsampledWriter tankCommandWriter = new DownsampledWriter("TANK_COMMAND", 50_000_000);
-
+    private Pose2d error;
     public class DriveLocalizer implements Localizer {
         public final List<Encoder> leftEncs, rightEncs;
+        public final IMU imu;
         private Pose2d pose;
 
         private double lastLeftPos, lastRightPos;
+        private Rotation2d lastHeading;
         private boolean initialized;
 
         public DriveLocalizer(Pose2d pose) {
@@ -154,6 +161,8 @@ public final class TankDrive {
 
             // TODO: reverse encoder directions if needed
             leftEncs.get(0).setDirection(DcMotorSimple.Direction.REVERSE);
+
+            imu = lazyImu.get();
 
             this.pose = pose;
         }
@@ -193,14 +202,22 @@ public final class TankDrive {
             meanRightPos /= rightEncs.size();
             meanRightVel /= rightEncs.size();
 
+            YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+
             FlightRecorder.write("TANK_LOCALIZER_INPUTS",
-                     new TankLocalizerInputsMessage(leftReadings, rightReadings));
+                     new TankLocalizerInputsMessage(leftReadings, rightReadings
+                             // TODO add angles, angles
+                     ));
+
+            Rotation2d heading = Rotation2d.exp(angles.getYaw(AngleUnit.RADIANS));
 
             if (!initialized) {
                 initialized = true;
 
                 lastLeftPos = meanLeftPos;
                 lastRightPos = meanRightPos;
+
+                lastHeading = heading;
 
                 return new PoseVelocity2d(new Vector2d(0.0, 0.0), 0.0);
 
@@ -220,7 +237,17 @@ public final class TankDrive {
             lastLeftPos = meanLeftPos;
             lastRightPos = meanRightPos;
 
+            lastHeading = heading;
+
             pose = pose.plus(twist.value());
+
+            /*
+                    TODO consider switching to this from Mecanum
+                    pose = pose.plus(new Twist2d(
+                    twist.line.value(),
+                    headingDelta
+            ));
+             */
 
             return twist.velocity().value();
         }
@@ -259,6 +286,8 @@ public final class TankDrive {
         localizer = new DriveLocalizer(pose);
 
         FlightRecorder.write("TANK_PARAMS", PARAMS);
+
+        error = new Pose2d(0,0,0);
     }
 
     public void setDrivePowers(PoseVelocity2d powers) {
@@ -277,6 +306,17 @@ public final class TankDrive {
             m.setPower(wheelVels.right.get(0) / maxPowerMag);
         }
     }
+
+    public void sendPlotData(@NonNull TelemetryPacket p) {
+        p.put("x (in)", localizer.getPose().position.x);
+        p.put("y (in)", localizer.getPose().position.y);
+        p.put("heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
+
+        p.put("xError (in)", error.position.x);
+        p.put("yError (in)", error.position.y);
+        p.put("headingError (deg)", Math.toDegrees(error.heading.toDouble()));
+    }
+
 
     public final class FollowTrajectoryAction implements Action {
         public final TimeTrajectory timeTrajectory;
@@ -346,14 +386,9 @@ public final class TankDrive {
                 m.setPower(rightPower);
             }
 
-            p.put("x", localizer.getPose().position.x);
-            p.put("y", localizer.getPose().position.y);
-            p.put("heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
+            error = txWorldTarget.value().minusExp(localizer.getPose());
 
-            Pose2d error = txWorldTarget.value().minusExp(localizer.getPose());
-            p.put("xError", error.position.x);
-            p.put("yError", error.position.y);
-            p.put("headingError (deg)", Math.toDegrees(error.heading.toDouble()));
+            sendPlotData(p);
 
             // only draw when active; only one drive action should be active at a time
             Canvas c = p.fieldOverlay();
@@ -378,6 +413,7 @@ public final class TankDrive {
             c.setStrokeWidth(1);
             c.strokePolyline(xPoints, yPoints);
         }
+
     }
 
     public final class TurnAction implements Action {
