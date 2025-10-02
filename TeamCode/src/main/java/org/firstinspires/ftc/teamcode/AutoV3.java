@@ -4,7 +4,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.AccelConstraint;
 import com.acmerobotics.roadrunner.Action;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//@Autonomous(name="Auto Blue BB Nando Mocanu numaru 1", group = "advanced")
 @Autonomous(name="Robot: AutoV3", group="Robot")
 @Config
 public class AutoV3 extends LinearOpMode {
@@ -38,8 +36,6 @@ public class AutoV3 extends LinearOpMode {
 
         Pose2d initialPose = new Pose2d(new Vector2d(-24.0,0), Math.toRadians(0));
         Pose2d secondPose = new Pose2d(new Vector2d(-24.0+1.0,0), Math.toRadians(0));
-
-
 
         TankDrive drive = new TankDrive(hardwareMap, initialPose);
         ElapsedTime timer1 = new ElapsedTime();

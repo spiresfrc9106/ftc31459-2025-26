@@ -65,9 +65,6 @@ public class AutoV2 extends LinearOpMode {
         TankDrive drive = new TankDrive(hardwareMap, initialPose);
         ElapsedTime timer1 = new ElapsedTime();
 
-
-        //FtcDashboard dashboard = FtcDashboard.getInstance();
-
         if (isStopRequested()) return;
 
         VelConstraint endVelConstraint =
@@ -82,26 +79,10 @@ public class AutoV2 extends LinearOpMode {
 
         Action a = drive.actionBuilder(initialPose)
                 .splineTo(new Vector2d(-8, -10), Math.toRadians(60))
-                //.splineTo(new Vector2d(-4, 5), Math.toRadians(75), endVelConstraint, endAccelConstraint )
-                //.splineTo(new Vector2d(0, 10), Math.toRadians(90), endVelConstraint, endAccelConstraint )
                 .splineTo(new Vector2d(0, 15), Math.toRadians(90), endVelConstraint, endAccelConstraint )
                 .splineTo(new Vector2d(0, 24), Math.toRadians(90), endVelConstraint, endAccelConstraint )
                 .build();
 
-
-        /*
-        double SIDE_IN = 12.0;
-        Action a = drive.actionBuilder(initialPose)
-                .forward(SIDE_IN)
-                .turn(Math.toRadians(90))
-                .forward(SIDE_IN)
-                .turn(Math.toRadians(90))
-                .forward(SIDE_IN)
-                .turn(Math.toRadians(90))
-                .forward(SIDE_IN)
-                .turn(Math.toRadians(90))
-                .build();
-         */
         List<Action> dummyActions = new ArrayList<>();
         dummyActions.add(dummyStart);
 
@@ -140,7 +121,6 @@ public class AutoV2 extends LinearOpMode {
 
             telemetry.addData("Runtime", getRuntime());
 
-            //dash.sendTelemetryPacket(packet); // this sends the data from the drive object
             telemetry.update(); // send data from the telemetry.addData calls
 
 
