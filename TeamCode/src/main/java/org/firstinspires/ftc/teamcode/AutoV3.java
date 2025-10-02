@@ -41,15 +41,8 @@ public class AutoV3 extends LinearOpMode {
 
 
 
-        // FtcDashboard dash = FtcDashboard.getInstance();
-
-        //telemetry = new MultipleTelemetry(telemetry, dash.getTelemetry());
-
         TankDrive drive = new TankDrive(hardwareMap, initialPose);
         ElapsedTime timer1 = new ElapsedTime();
-
-
-        if (isStopRequested()) return;
 
         VelConstraint endVelConstraint =
                 new MinVelConstraint(Arrays.asList(
@@ -59,38 +52,16 @@ public class AutoV3 extends LinearOpMode {
 
         AccelConstraint endAccelConstraint = new ProfileAccelConstraint(-5, 10);
 
-        Action dummyStart = new SequentialAction(new SleepAction(3.0));
-
         Action a = drive.actionBuilder(initialPose)
                 .splineTo(new Vector2d(-8, -10), Math.toRadians(60))
-                //.splineTo(new Vector2d(-4, 5), Math.toRadians(75), endVelConstraint, endAccelConstraint )
-                //.splineTo(new Vector2d(0, 10), Math.toRadians(90), endVelConstraint, endAccelConstraint )
                 .splineTo(new Vector2d(0, 15), Math.toRadians(90), endVelConstraint, endAccelConstraint )
                 .splineTo(new Vector2d(0, 24), Math.toRadians(90), endVelConstraint, endAccelConstraint )
                 .build();
 
-
-        /*
-        double SIDE_IN = 12.0;
-        Action a = drive.actionBuilder(initialPose)
-                .forward(SIDE_IN)
-                .turn(Math.toRadians(90))
-                .forward(SIDE_IN)
-                .turn(Math.toRadians(90))
-                .forward(SIDE_IN)
-                .turn(Math.toRadians(90))
-                .forward(SIDE_IN)
-                .turn(Math.toRadians(90))
-                .build();
-         */
-        List<Action> dummyActions = new ArrayList<>();
-        dummyActions.add(dummyStart);
-
         List<Action> runningActions = new ArrayList<>();
-
         runningActions.add(a);
 
-        List<Action> doActions = dummyActions;
+        List<Action> doActions = new ArrayList<>();
 
         boolean start = false;
 
@@ -103,15 +74,11 @@ public class AutoV3 extends LinearOpMode {
                 start = true;
                 doActions = runningActions;
             }
-            else if (!start && doActions.isEmpty()) {
-                doActions.add(dummyStart);
-            }
-
-            if (!start) {
-                drive.sendPlotData(packet);
-            }
 
             List<Action> newActions = new ArrayList<>();
+            if (doActions.isEmpty()) {
+                drive.sendPlotData(packet);
+            }
             for (Action action : doActions) {
                 action.preview(packet.fieldOverlay());
                 if (action.run(packet)) {
@@ -120,12 +87,9 @@ public class AutoV3 extends LinearOpMode {
             }
             doActions = newActions;
 
-            packet.put("Runtime", getRuntime());
+            packet.put("Runtime (s)", getRuntime());
 
-            FtcDashboard.getInstance().sendTelemetryPacket(packet); // this sends the data from the drive object
-            //telemetry.update(); // send data from the telemetry.addData calls
-
-
+            FtcDashboard.getInstance().sendTelemetryPacket(packet);
         }
     }
 }

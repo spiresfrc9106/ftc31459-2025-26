@@ -62,7 +62,7 @@ public class AutoV2 extends LinearOpMode {
 
         telemetry = new MultipleTelemetry(telemetry, dash.getTelemetry());
 
-        TankDrive drive = new TankDrive(hardwareMap, initialPose, telemetry);
+        TankDrive drive = new TankDrive(hardwareMap, initialPose);
         ElapsedTime timer1 = new ElapsedTime();
 
 

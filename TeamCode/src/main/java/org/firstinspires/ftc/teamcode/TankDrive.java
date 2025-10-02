@@ -104,8 +104,6 @@ public final class TankDrive {
 
     public static Params PARAMS = new Params();
 
-    private Telemetry telemetry;
-
     public final TankKinematics kinematics = new TankKinematics(PARAMS.inPerTick * PARAMS.trackWidthTicks);
 
     public final TurnConstraints defaultTurnConstraints = new TurnConstraints(
@@ -256,10 +254,6 @@ public final class TankDrive {
     }
 
     public TankDrive(HardwareMap hardwareMap, Pose2d pose) {
-        this(hardwareMap, pose, null);
-    }
-
-    public TankDrive(HardwareMap hardwareMap, Pose2d pose, Telemetry telemetry) {
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
@@ -293,8 +287,6 @@ public final class TankDrive {
 
         FlightRecorder.write("TANK_PARAMS", PARAMS);
 
-        this.telemetry = telemetry;
-
         error = new Pose2d(0,0,0);
     }
 
@@ -316,36 +308,13 @@ public final class TankDrive {
     }
 
     public void sendPlotData(@NonNull TelemetryPacket p) {
-        p.put("x", localizer.getPose().position.x);
-        p.put("y", localizer.getPose().position.y);
+        p.put("x (in)", localizer.getPose().position.x);
+        p.put("y (in)", localizer.getPose().position.y);
         p.put("heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
 
-        p.put("xError", error.position.x);
-        p.put("yError", error.position.y);
+        p.put("xError (in)", error.position.x);
+        p.put("yError (in)", error.position.y);
         p.put("headingError (deg)", Math.toDegrees(error.heading.toDouble()));
-
-
-        if (telemetry == null) {
-            p.put("tel_x", localizer.getPose().position.x);
-            p.put("tel_y", localizer.getPose().position.y);
-            p.put("tel_heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
-
-            p.put("tel_xError", error.position.x);
-            p.put("tel_yError", error.position.y);
-            p.put("tel_headingError (deg)", Math.toDegrees(error.heading.toDouble()));
-
-        } else {
-            telemetry.addData("tel_x", localizer.getPose().position.x);
-            telemetry.addData("tel_y", localizer.getPose().position.y);
-            telemetry.addData("tel_heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
-
-            telemetry.addData("tel_xError", error.position.x);
-            telemetry.addData("tel_yError", error.position.y);
-            telemetry.addData("tel_headingError (deg)", Math.toDegrees(error.heading.toDouble()));
-        }
-
-
-
     }
 
 
