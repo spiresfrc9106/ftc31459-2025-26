@@ -325,7 +325,16 @@ public final class TankDrive {
         p.put("headingError (deg)", Math.toDegrees(error.heading.toDouble()));
 
 
-        if (telemetry != null) {
+        if (telemetry == null) {
+            p.put("tel_x", localizer.getPose().position.x);
+            p.put("tel_y", localizer.getPose().position.y);
+            p.put("tel_heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
+
+            p.put("tel_xError", error.position.x);
+            p.put("tel_yError", error.position.y);
+            p.put("tel_headingError (deg)", Math.toDegrees(error.heading.toDouble()));
+
+        } else {
             telemetry.addData("tel_x", localizer.getPose().position.x);
             telemetry.addData("tel_y", localizer.getPose().position.y);
             telemetry.addData("tel_heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
