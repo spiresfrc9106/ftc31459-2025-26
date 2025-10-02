@@ -11,8 +11,6 @@ import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -23,9 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Autonomous(name="Robot: AutoV3", group="Robot")
+@Autonomous(name="Robot: AutoV4", group="Robot")
 @Config
-public class AutoV3 extends LinearOpMode {
+public class AutoV4 extends LinearOpMode {
 
     public static double startNow = 1.0;
 
@@ -35,8 +33,11 @@ public class AutoV3 extends LinearOpMode {
         int level=0;
 
         Pose2d initialPose = new Pose2d(new Vector2d(-24.0,0), Math.toRadians(0));
+        Pose2d secondPose = new Pose2d(new Vector2d(-24.0+1.0,0), Math.toRadians(0));
 
         TankDrive drive = new TankDrive(hardwareMap, initialPose);
+        ExampleHardware ehServo = new ExampleHardware(hardwareMap);
+
         ElapsedTime timer1 = new ElapsedTime();
 
         VelConstraint endVelConstraint =
@@ -48,9 +49,9 @@ public class AutoV3 extends LinearOpMode {
         AccelConstraint endAccelConstraint = new ProfileAccelConstraint(-5, 10);
 
         Action a = drive.actionBuilder(initialPose)
-                .splineTo(new Vector2d(24, -68), Math.toRadians(0))
-                .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
-                .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
+                .splineTo(new Vector2d(-8, -10), Math.toRadians(60))
+                .splineTo(new Vector2d(0, 15), Math.toRadians(90), endVelConstraint, endAccelConstraint )
+                .splineTo(new Vector2d(0, 24), Math.toRadians(90), endVelConstraint, endAccelConstraint )
                 .build();
 
         List<Action> runningActions = new ArrayList<>();
