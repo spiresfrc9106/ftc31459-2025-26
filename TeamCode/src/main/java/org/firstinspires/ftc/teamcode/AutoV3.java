@@ -48,9 +48,9 @@ public class AutoV3 extends LinearOpMode {
         AccelConstraint endAccelConstraint = new ProfileAccelConstraint(-5, 10);
 
         Action a = drive.actionBuilder(initialPose)
-                .splineTo(new Vector2d(24, -68), Math.toRadians(0))
-                .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
-                .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
+                .splineTo(new Vector2d(-68, -24), Math.toRadians(0))
+                .splineTo(new Vector2d(-12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
+                .splineTo(new Vector2d(-12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
                 .build();
 
         List<Action> runningActions = new ArrayList<>();
