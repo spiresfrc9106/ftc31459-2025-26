@@ -14,14 +14,26 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
 
+        // Tom and Sammy: Changed this to the initial pose.
+        // Tom and Sammy: You really wanted the y 24 to be -24
+        Pose2d initialPose = new Pose2d(new Vector2d(-68,-24), Math.toRadians(0));
+
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(50, 25, Math.toRadians(60), Math.toRadians(9), 11)
-                .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-20, 0, 0))
-                .splineTo(new Vector2d(-4, -5), Math.toRadians(60))
-                .splineTo(new Vector2d(0, 15), Math.toRadians(90) )
-                .splineTo(new Vector2d(0, 20), Math.toRadians(90) )
-                .build());
+                .followTrajectorySequence(
+                        drive -> drive.trajectorySequenceBuilder(initialPose)
+                                // Tom and Sammy: You really wanted y=-12
+                                .splineTo(new Vector2d(12, -12), Math.toRadians(135))
+                                // Tom and Sammy, removing the Vel and Accel constraints:
+                                // .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
+                                // Tom and Sammy, can't splineTo where we are, use .turn:
+                                // .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
+                                // there is a bug in RoadRunner, where the above splineTo causes an exception that crashes
+                                // the robot without a good error message. That made this hard to figure out.
+                                .turn(Math.toRadians(-45)) // This is a relative angle
+                                .build()
+                );
 
 
 
