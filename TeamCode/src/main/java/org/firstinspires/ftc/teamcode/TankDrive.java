@@ -317,7 +317,6 @@ public final class TankDrive {
         p.put("yError (in)", error.position.y);
         p.put("headingError (deg)", Math.toDegrees(error.heading.toDouble()));
 
-        /*
         if (wheelVels==null){
             p.put("left Vel", 0.0);
             p.put("left Acl", 0.0);
@@ -329,13 +328,19 @@ public final class TankDrive {
             p.put("right Vel", wheelVels.right.get(0));
             p.put("right Acl", wheelVels.right.get(1));
         }
-        */
     }
 
     public void setTankWheelPowers(PoseVelocity2dDual<Time> command) {
         driveCommandWriter.write(new DriveCommandMessage(command));
 
         wheelVels = kinematics.inverse(command);
+
+        // TODO Coach Mike: Instrumenting wheelVels, it seems that
+        // wheelVels.left.get(0) is velocity
+        // wheelVels.left.get(1) is acceleration
+        // when in a .splineTo acceleration is always 0
+        // when in a .turn acceleration is not 0. On one test it was 90. Hmm...
+        // By testing the velocity units seem to be inches/sec
         double voltage = voltageSensor.getVoltage();
         final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
                 PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
