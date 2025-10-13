@@ -55,10 +55,10 @@ public class AutoV3 extends LinearOpMode {
         Action a = drive.actionBuilder(initialPose)
                 // Tom and Sammy: this is in initialPose:.splineTo(new Vector2d(-68,24), Math.toRadians(0))
                 // Tom and Sammy: You really wanted y=-12
-                .splineTo(new Vector2d(12, -12), Math.toRadians(135), endVelConstraint, endAccelConstraint)
+                .splineTo(new Vector2d(-6, 6), Math.toRadians(135), endVelConstraint, endAccelConstraint)
                 // Tom and Sammy, removing the Vel and Accel constraints: .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
                 // Tom and Sammy, can't splineTo where we are, use .turn: .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
-                .turn(Math.toRadians(-45), new TurnConstraints(15,-15, 15)) // This is a relative angle
+                //.turn(Math.toRadians(-45), new TurnConstraints(15,-15, 15)) // This is a relative angle
                 .build();
 
         List<Action> runningActions = new ArrayList<>();
