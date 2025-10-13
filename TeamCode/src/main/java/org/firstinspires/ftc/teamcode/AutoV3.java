@@ -13,6 +13,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -34,10 +35,14 @@ public class AutoV3 extends LinearOpMode {
 
         int level=0;
 
-        Pose2d initialPose = new Pose2d(new Vector2d(-24.0,0), Math.toRadians(0));
+        // Tom and Sammy: You really wanted the y 24 to be -24
+        Pose2d initialPose = new Pose2d(new Vector2d(-68,-24), Math.toRadians(0));
 
         TankDrive drive = new TankDrive(hardwareMap, initialPose);
         ElapsedTime timer1 = new ElapsedTime();
+
+        // Wait for the game to start (driver presses START)
+        waitForStart();
 
         VelConstraint endVelConstraint =
                 new MinVelConstraint(Arrays.asList(
@@ -48,9 +53,12 @@ public class AutoV3 extends LinearOpMode {
         AccelConstraint endAccelConstraint = new ProfileAccelConstraint(-5, 10);
 
         Action a = drive.actionBuilder(initialPose)
-                .splineTo(new Vector2d(24, -68), Math.toRadians(0))
-                .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
-                .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
+                // Tom and Sammy: this is in initialPose:.splineTo(new Vector2d(-68,24), Math.toRadians(0))
+                // Tom and Sammy: You really wanted y=-12
+                .splineTo(new Vector2d(12, -12), Math.toRadians(135), endVelConstraint, endAccelConstraint)
+                // Tom and Sammy, removing the Vel and Accel constraints: .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
+                // Tom and Sammy, can't splineTo where we are, use .turn: .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
+                .turn(Math.toRadians(-45), new TurnConstraints(15,-15, 15)) // This is a relative angle
                 .build();
 
         List<Action> runningActions = new ArrayList<>();
@@ -60,8 +68,7 @@ public class AutoV3 extends LinearOpMode {
 
         boolean start = false;
 
-        // Wait for the game to start (driver presses START)
-        waitForStart();
+
 
         while (opModeIsActive() && !isStopRequested()) {
             TelemetryPacket packet = new TelemetryPacket();
