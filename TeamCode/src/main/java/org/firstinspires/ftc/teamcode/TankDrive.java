@@ -50,7 +50,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
@@ -131,6 +130,7 @@ public final class TankDrive {
 
     private final DownsampledWriter tankCommandWriter = new DownsampledWriter("TANK_COMMAND", 50_000_000);
     private Pose2d error;
+    private TankKinematics.WheelVelocities<Time> wheelVels = null;
     public class DriveLocalizer implements Localizer {
         public final List<Encoder> leftEncs, rightEncs;
         public final IMU imu;
@@ -138,6 +138,7 @@ public final class TankDrive {
 
         private double lastLeftPos, lastRightPos;
         private Rotation2d lastHeading;
+
         private boolean initialized;
 
         public DriveLocalizer(Pose2d pose) {
@@ -291,19 +292,19 @@ public final class TankDrive {
     }
 
     public void setDrivePowers(PoseVelocity2d powers) {
-        TankKinematics.WheelVelocities<Time> wheelVels = new TankKinematics(2).inverse(
+        TankKinematics.WheelVelocities<Time> wheelVelsSetDrivePowers = new TankKinematics(2).inverse(
                 PoseVelocity2dDual.constant(powers, 1));
 
         double maxPowerMag = 1;
-        for (DualNum<Time> power : wheelVels.all()) {
+        for (DualNum<Time> power : wheelVelsSetDrivePowers.all()) {
             maxPowerMag = Math.max(maxPowerMag, power.value());
         }
 
         for (DcMotorEx m : leftMotors) {
-            m.setPower(wheelVels.left.get(0) / maxPowerMag);
+            m.setPower(wheelVelsSetDrivePowers.left.get(0) / maxPowerMag);
         }
         for (DcMotorEx m : rightMotors) {
-            m.setPower(wheelVels.right.get(0) / maxPowerMag);
+            m.setPower(wheelVelsSetDrivePowers.right.get(0) / maxPowerMag);
         }
     }
 
@@ -315,6 +316,39 @@ public final class TankDrive {
         p.put("xError (in)", error.position.x);
         p.put("yError (in)", error.position.y);
         p.put("headingError (deg)", Math.toDegrees(error.heading.toDouble()));
+
+        /*
+        if (wheelVels==null){
+            p.put("left Vel", 0.0);
+            p.put("left Acl", 0.0);
+            p.put("right Vel", 0.0);
+            p.put("right Acl", 0.0);
+        } else {
+            p.put("left Vel", wheelVels.left.get(0));
+            p.put("left Acl", wheelVels.left.get(1));
+            p.put("right Vel", wheelVels.right.get(0));
+            p.put("right Acl", wheelVels.right.get(1));
+        }
+        */
+    }
+
+    public void setTankWheelPowers(PoseVelocity2dDual<Time> command) {
+        driveCommandWriter.write(new DriveCommandMessage(command));
+
+        wheelVels = kinematics.inverse(command);
+        double voltage = voltageSensor.getVoltage();
+        final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
+                PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
+        double leftPower = feedforward.compute(wheelVels.left) / voltage;
+        double rightPower = feedforward.compute(wheelVels.right) / voltage;
+        tankCommandWriter.write(new TankCommandMessage(voltage, leftPower, rightPower));
+
+        for (DcMotorEx m : leftMotors) {
+            m.setPower(leftPower);
+        }
+        for (DcMotorEx m : rightMotors) {
+            m.setPower(rightPower);
+        }
     }
 
 
@@ -369,22 +403,8 @@ public final class TankDrive {
 
             PoseVelocity2dDual<Time> command = new RamseteController(kinematics.trackWidth, PARAMS.ramseteZeta, PARAMS.ramseteBBar)
                     .compute(x, txWorldTarget, localizer.getPose());
-            driveCommandWriter.write(new DriveCommandMessage(command));
 
-            TankKinematics.WheelVelocities<Time> wheelVels = kinematics.inverse(command);
-            double voltage = voltageSensor.getVoltage();
-            final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
-                    PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
-            double leftPower = feedforward.compute(wheelVels.left) / voltage;
-            double rightPower = feedforward.compute(wheelVels.right) / voltage;
-            tankCommandWriter.write(new TankCommandMessage(voltage, leftPower, rightPower));
-
-            for (DcMotorEx m : leftMotors) {
-                m.setPower(leftPower);
-            }
-            for (DcMotorEx m : rightMotors) {
-                m.setPower(rightPower);
-            }
+            setTankWheelPowers(command);
 
             error = txWorldTarget.value().minusExp(localizer.getPose());
 
@@ -458,22 +478,8 @@ public final class TankDrive {
                             PARAMS.turnVelGain * (robotVelRobot.angVel - txWorldTarget.heading.velocity().value())
                     )
             );
-            driveCommandWriter.write(new DriveCommandMessage(command));
 
-            TankKinematics.WheelVelocities<Time> wheelVels = kinematics.inverse(command);
-            double voltage = voltageSensor.getVoltage();
-            final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
-                    PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
-            double leftPower = feedforward.compute(wheelVels.left) / voltage;
-            double rightPower = feedforward.compute(wheelVels.right) / voltage;
-            tankCommandWriter.write(new TankCommandMessage(voltage, leftPower, rightPower));
-
-            for (DcMotorEx m : leftMotors) {
-                m.setPower(leftPower);
-            }
-            for (DcMotorEx m : rightMotors) {
-                m.setPower(rightPower);
-            }
+            setTankWheelPowers(command);
 
             Canvas c = p.fieldOverlay();
             drawPoseHistory(c);
