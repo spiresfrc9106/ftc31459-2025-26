@@ -30,6 +30,22 @@ android studio wifi -
  - open rev hardware client
  - have rev hardware client open the control hub
 
+https://youtu.be/bCNUGSwhHZk?si=cEOHIuDxJmShm5MX
+
+
+```agsl
+C:\Users\mike\AppData\Local\Android\Sdk\platform-tools>doskey /history
+cd AppData\Local\Android
+dir
+cd Sdk\platform-tools
+adb kill-server
+adb tcpip 5555
+adb connect 192.168.43.1
+histoyr
+history
+doskey /history
+```
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the DECODE (2025-2026) competition season.

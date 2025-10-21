@@ -120,6 +120,8 @@ public final class MecanumDrive {
     private final DownsampledWriter driveCommandWriter = new DownsampledWriter("DRIVE_COMMAND", 50_000_000);
     private final DownsampledWriter mecanumCommandWriter = new DownsampledWriter("MECANUM_COMMAND", 50_000_000);
 
+    private Pose2d error;
+    private Pose2dDual<Time> txWorldTarget = null;
     public class DriveLocalizer implements Localizer {
         public final Encoder leftFront, leftBack, rightBack, rightFront;
         public final IMU imu;
@@ -249,6 +251,9 @@ public final class MecanumDrive {
         localizer = new DriveLocalizer(pose);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
+
+        error = new Pose2d(0,0,0);
+        txWorldTarget = null;
     }
 
     public void setDrivePowers(PoseVelocity2d powers) {
@@ -264,6 +269,72 @@ public final class MecanumDrive {
         leftBack.setPower(wheelVels.leftBack.get(0) / maxPowerMag);
         rightBack.setPower(wheelVels.rightBack.get(0) / maxPowerMag);
         rightFront.setPower(wheelVels.rightFront.get(0) / maxPowerMag);
+    }
+
+    public void setFieldRelativeDrive(double xIPS, double yIPS, double rotRadPS)
+    {
+        Rotation2d rot1 = new Rotation2d(xIPS, yIPS);
+        Pose2d poseEstimate = localizer.getPose();
+
+
+        Rotation2d rot2 = rot1.times(new Rotation2d(poseEstimate.heading.real, -poseEstimate.heading.imag));
+
+        PoseVelocity2dDual command =
+                PoseVelocity2dDual.constant(
+                        new PoseVelocity2d(new Vector2d(rot2.real, rot2.imag), rotRadPS), 2);
+
+        setMotorPowersFromCommand(command);
+
+    }
+
+    public void setMotorPowersFromCommand(PoseVelocity2dDual<Time> command){
+        double leftFrontPower =  0.0;
+        double leftBackPower =  0.0;
+        double rightBackPower =  0.0;
+        double rightFrontPower = 0.0;
+        double voltage = voltageSensor.getVoltage();
+        if ( (Math.abs(command.angVel.get(0)) > 1e-3) || (Math.abs(command.linearVel.x.get(0))>1e-3) || (Math.abs(command.linearVel.y.get(0))>1e-3)) {
+            final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
+                    PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
+            MecanumKinematics.WheelVelocities<Time> wheelVels = kinematics.inverse(command);
+            leftFrontPower = feedforward.compute(wheelVels.leftFront) / voltage;
+            leftBackPower = feedforward.compute(wheelVels.leftBack) / voltage;
+            rightBackPower = feedforward.compute(wheelVels.rightBack) / voltage;
+            rightFrontPower = feedforward.compute(wheelVels.rightFront) / voltage;
+        }
+
+
+        mecanumCommandWriter.write(new MecanumCommandMessage(
+                voltage, leftFrontPower, leftBackPower, rightBackPower, rightFrontPower
+        ));
+
+        leftFront.setPower(leftFrontPower);
+        leftBack.setPower(leftBackPower);
+        rightBack.setPower(rightBackPower);
+        rightFront.setPower(rightFrontPower);
+    }
+
+    public Canvas sendPlotData(@NonNull TelemetryPacket p) {
+        p.put("x", localizer.getPose().position.x);
+        p.put("y", localizer.getPose().position.y);
+        p.put("heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
+
+        p.put("xError", error.position.x);
+        p.put("yError", error.position.y);
+        p.put("headingError (deg)", Math.toDegrees(error.heading.toDouble()));
+
+        // only draw when active; only one drive action should be active at a time
+        Canvas c = p.fieldOverlay();
+        drawPoseHistory(c);
+
+        if (txWorldTarget != null) {
+            c.setStroke("#4CAF50");
+            Drawing.drawRobot(c, txWorldTarget.value());
+        }
+
+        c.setStroke("#3F51B5");
+        Drawing.drawRobot(c, localizer.getPose());
+        return c;
     }
 
     public final class FollowTrajectoryAction implements Action {
@@ -306,7 +377,7 @@ public final class MecanumDrive {
                 return false;
             }
 
-            Pose2dDual<Time> txWorldTarget = timeTrajectory.get(t);
+            txWorldTarget = timeTrajectory.get(t);
             targetPoseWriter.write(new PoseMessage(txWorldTarget.value()));
 
             PoseVelocity2d robotVelRobot = updatePoseEstimate();
@@ -318,42 +389,11 @@ public final class MecanumDrive {
                     .compute(txWorldTarget, localizer.getPose(), robotVelRobot);
             driveCommandWriter.write(new DriveCommandMessage(command));
 
-            MecanumKinematics.WheelVelocities<Time> wheelVels = kinematics.inverse(command);
-            double voltage = voltageSensor.getVoltage();
+            setMotorPowersFromCommand(command);
 
-            final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
-                    PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
-            double leftFrontPower = feedforward.compute(wheelVels.leftFront) / voltage;
-            double leftBackPower = feedforward.compute(wheelVels.leftBack) / voltage;
-            double rightBackPower = feedforward.compute(wheelVels.rightBack) / voltage;
-            double rightFrontPower = feedforward.compute(wheelVels.rightFront) / voltage;
-            mecanumCommandWriter.write(new MecanumCommandMessage(
-                    voltage, leftFrontPower, leftBackPower, rightBackPower, rightFrontPower
-            ));
+            error = txWorldTarget.value().minusExp(localizer.getPose());
 
-            leftFront.setPower(leftFrontPower);
-            leftBack.setPower(leftBackPower);
-            rightBack.setPower(rightBackPower);
-            rightFront.setPower(rightFrontPower);
-
-            p.put("x", localizer.getPose().position.x);
-            p.put("y", localizer.getPose().position.y);
-            p.put("heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
-
-            Pose2d error = txWorldTarget.value().minusExp(localizer.getPose());
-            p.put("xError", error.position.x);
-            p.put("yError", error.position.y);
-            p.put("headingError (deg)", Math.toDegrees(error.heading.toDouble()));
-
-            // only draw when active; only one drive action should be active at a time
-            Canvas c = p.fieldOverlay();
-            drawPoseHistory(c);
-
-            c.setStroke("#4CAF50");
-            Drawing.drawRobot(c, txWorldTarget.value());
-
-            c.setStroke("#3F51B5");
-            Drawing.drawRobot(c, localizer.getPose());
+            Canvas c = sendPlotData(p);
 
             c.setStroke("#4CAF50FF");
             c.setStrokeWidth(1);
@@ -398,7 +438,7 @@ public final class MecanumDrive {
                 return false;
             }
 
-            Pose2dDual<Time> txWorldTarget = turn.get(t);
+            txWorldTarget = turn.get(t);
             targetPoseWriter.write(new PoseMessage(txWorldTarget.value()));
 
             PoseVelocity2d robotVelRobot = updatePoseEstimate();
@@ -410,31 +450,11 @@ public final class MecanumDrive {
                     .compute(txWorldTarget, localizer.getPose(), robotVelRobot);
             driveCommandWriter.write(new DriveCommandMessage(command));
 
-            MecanumKinematics.WheelVelocities<Time> wheelVels = kinematics.inverse(command);
-            double voltage = voltageSensor.getVoltage();
-            final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
-                    PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
-            double leftFrontPower = feedforward.compute(wheelVels.leftFront) / voltage;
-            double leftBackPower = feedforward.compute(wheelVels.leftBack) / voltage;
-            double rightBackPower = feedforward.compute(wheelVels.rightBack) / voltage;
-            double rightFrontPower = feedforward.compute(wheelVels.rightFront) / voltage;
-            mecanumCommandWriter.write(new MecanumCommandMessage(
-                    voltage, leftFrontPower, leftBackPower, rightBackPower, rightFrontPower
-            ));
+            setMotorPowersFromCommand(command);
 
-            leftFront.setPower(feedforward.compute(wheelVels.leftFront) / voltage);
-            leftBack.setPower(feedforward.compute(wheelVels.leftBack) / voltage);
-            rightBack.setPower(feedforward.compute(wheelVels.rightBack) / voltage);
-            rightFront.setPower(feedforward.compute(wheelVels.rightFront) / voltage);
+            error = txWorldTarget.value().minusExp(localizer.getPose());
 
-            Canvas c = p.fieldOverlay();
-            drawPoseHistory(c);
-
-            c.setStroke("#4CAF50");
-            Drawing.drawRobot(c, txWorldTarget.value());
-
-            c.setStroke("#3F51B5");
-            Drawing.drawRobot(c, localizer.getPose());
+            Canvas c = sendPlotData(p);
 
             c.setStroke("#7C4DFFFF");
             c.fillCircle(turn.beginPose.position.x, turn.beginPose.position.y, 2);

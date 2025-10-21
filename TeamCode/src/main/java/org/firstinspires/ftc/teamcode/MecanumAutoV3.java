@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 // import static org.firstinspires.ftc.teamcode.RobotConstants.state;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.AccelConstraint;
@@ -77,7 +78,7 @@ public class MecanumAutoV3 extends LinearOpMode {
 
             List<Action> newActions = new ArrayList<>();
             if (doActions.isEmpty()) {
-               // drive.sendPlotData(packet);
+                Canvas c = drive.sendPlotData(packet);
             }
             for (Action action : doActions) {
                 action.preview(packet.fieldOverlay());
