@@ -24,19 +24,14 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(
                         drive -> drive.trajectorySequenceBuilder(initialPose)
                                 // Tom and Sammy: You really wanted y=-12
-                                .splineTo(new Vector2d(12, -12), Math.toRadians(135))
-                                // Tom and Sammy, removing the Vel and Accel constraints:
-                                // .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
-                                // Tom and Sammy, can't splineTo where we are, use .turn:
-                                // .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
-                                // there is a bug in RoadRunner, where the above splineTo causes an exception that crashes
-                                // the robot without a good error message. That made this hard to figure out.
-                                .turn(Math.toRadians(-45)) // This is a relative angle
+                                .splineTo(new Vector2d(-6, 6), Math.toRadians(135))
+                                // Tom and Sammy, removing the Vel and Accel constraints: .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
+                                // Tom and Sammy, can't splineTo where we are, use .turn: .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
+                                //.turn(Math.toRadians(-45), new TurnConstraints(15,-15, 15)) // This is a relative angle
                                 .build()
+
+
                 );
-
-
-
                 /*
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(0, 0, 0))
                         .forward(30)
