@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Autonomous(name="Robot: AutoV3", group="Robot")
+@Autonomous(name="Mecanum: AutoV3", group="Robot")
 @Config
 public class MecanumAutoV3 extends LinearOpMode {
 
