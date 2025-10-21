@@ -96,10 +96,12 @@ public class MecanumTeleOpV3 extends LinearOpMode {
             double xySpeedFactor = 0.25;
             double rotationSpeedFactor = 0.25;
 
-            double x_vel_frac = -gamepad1.left_stick_y;
+            double x_vel_frac = -gamepad1.left_stick_y; // Sammy note the minus sign here
             double y_vel_frac = -gamepad1.left_stick_x;
             double rot_vel_frac = -gamepad1.right_stick_x;
 
+            /*
+            Sammy set this so that if the joysticks are near zero that they get set to zero.
             if (Math.abs(x_vel_frac)<0.05) {
                 x_vel_frac = 0;
             }
@@ -111,10 +113,18 @@ public class MecanumTeleOpV3 extends LinearOpMode {
             if (Math.abs(rot_vel_frac)<0.05) {
                 rot_vel_frac = 0;
             }
+            */
 
-            double xIPS = x_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
-            double yIPS = y_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
-            double rotRadPS = rot_vel_frac * drive.PARAMS.maxAngVel * rotationSpeedFactor;
+            double xIPS = 0;
+            double yIPS = 0;
+            double rotRadPS = 0;
+
+            /*
+             Sammy what does this do?
+            xIPS = x_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
+            yIPS = y_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
+            rotRadPS = rot_vel_frac * drive.PARAMS.maxAngVel * rotationSpeedFactor;
+             */
 
             packet.put("x IPS", xIPS);
             packet.put("y IPS", xIPS);
