@@ -37,7 +37,7 @@ public class MecanumAutoV3 extends LinearOpMode {
         // Tom and Sammy: You really wanted the y 24 to be -24
         Pose2d initialPose = new Pose2d(new Vector2d(-68,-24), Math.toRadians(0));
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
+        MecanumDrive drive = new MecanumDrive(hardwareMap);
         ElapsedTime timer1 = new ElapsedTime();
 
         // Wait for the game to start (driver presses START)

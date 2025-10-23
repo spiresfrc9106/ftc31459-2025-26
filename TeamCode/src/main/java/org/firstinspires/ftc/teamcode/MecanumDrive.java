@@ -53,6 +53,8 @@ import java.util.List;
 
 @Config
 public final class MecanumDrive {
+
+    private Pose2d pose;
     public static class Params {
         // IMU orientation
         // TODO: fill in these values based on
@@ -129,9 +131,8 @@ public final class MecanumDrive {
         private int lastLeftFrontPos, lastLeftBackPos, lastRightBackPos, lastRightFrontPos;
         private Rotation2d lastHeading;
         private boolean initialized;
-        private Pose2d pose;
 
-        public DriveLocalizer(Pose2d pose) {
+        public DriveLocalizer(Pose2d givenPose) {
             leftFront = new OverflowEncoder(new RawEncoder(MecanumDrive.this.leftFront));
             leftBack = new OverflowEncoder(new RawEncoder(MecanumDrive.this.leftBack));
             rightBack = new OverflowEncoder(new RawEncoder(MecanumDrive.this.rightBack));
@@ -142,12 +143,12 @@ public final class MecanumDrive {
             // TODO: reverse encoders if needed
                rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
                rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
-            this.pose = pose;
+            pose = givenPose;
         }
 
         @Override
-        public void setPose(Pose2d pose) {
-            this.pose = pose;
+        public void setPose(Pose2d givenPose) {
+            pose = givenPose;
         }
 
         @Override
@@ -218,7 +219,7 @@ public final class MecanumDrive {
         }
     }
 
-    public MecanumDrive(HardwareMap hardwareMap, Pose2d pose) {
+    public MecanumDrive(HardwareMap hardwareMap) {
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
@@ -247,7 +248,6 @@ public final class MecanumDrive {
                 PARAMS.logoFacingDirection, PARAMS.usbFacingDirection));
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
-
         localizer = new DriveLocalizer(pose);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);

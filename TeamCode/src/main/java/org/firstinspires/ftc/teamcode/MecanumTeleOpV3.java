@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /*
- * This OpMode executes control of the shooter motro from teleop
+ * This OpMode executes control of the shooter motor from teleop
  * The code is structured as a LinearOpMode
  *
  * In this mode the left stick forward back changes the target speed.
@@ -64,7 +64,6 @@ public class MecanumTeleOpV3 extends LinearOpMode {
     /* Declare OpMode members. */
     public DcMotorEx  shootMotor   = null;
 
-
     public static double maxShootMotorRpm = 6000;
     public static double targetSpeedRpm = 0;
     static final double TICKS_PER_REVOLUTION = 28;
@@ -76,9 +75,9 @@ public class MecanumTeleOpV3 extends LinearOpMode {
         int level=0;
 
         // Tom and Sammy: You really wanted the y 24 to be -24
-        Pose2d initialPose = new Pose2d(new Vector2d(-68,-24), Math.toRadians(0));
+        //Pose2d initialPose = new Pose2d(new Vector2d(-68,-24), Math.toRadians(0));
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
+        MecanumDrive drive = new MecanumDrive(hardwareMap );
         ElapsedTime timer1 = new ElapsedTime();
 
         // Wait for the game to start (driver presses START)
@@ -100,8 +99,8 @@ public class MecanumTeleOpV3 extends LinearOpMode {
             double y_vel_frac = -gamepad1.left_stick_x;
             double rot_vel_frac = -gamepad1.right_stick_x;
 
-            /*
-            Sammy set this so that if the joysticks are near zero that they get set to zero.
+
+            //Sammy set this so that if the joysticks are near zero that they get set to zero.
             if (Math.abs(x_vel_frac)<0.05) {
                 x_vel_frac = 0;
             }
@@ -113,25 +112,23 @@ public class MecanumTeleOpV3 extends LinearOpMode {
             if (Math.abs(rot_vel_frac)<0.05) {
                 rot_vel_frac = 0;
             }
-            */
 
-            double xIPS = 0;
-            double yIPS = 0;
-            double rotRadPS = 0;
 
-            /*
-             Sammy what does this do?
-            xIPS = x_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
-            yIPS = y_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
-            rotRadPS = rot_vel_frac * drive.PARAMS.maxAngVel * rotationSpeedFactor;
-             */
+
+
+
+            // Sammy what does this do?
+            double xIPS = x_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
+            double yIPS = y_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
+            double rotRadPS = rot_vel_frac * drive.PARAMS.maxAngVel * rotationSpeedFactor;
+
 
             packet.put("x IPS", xIPS);
             packet.put("y IPS", xIPS);
 
             packet.put("rot DPS", Math.toDegrees(rotRadPS));
 
-            drive.setFieldRelativeDrive(xIPS, yIPS, rotRadPS);
+             drive.setFieldRelativeDrive(xIPS, yIPS, rotRadPS);
 
             // Update everything. Odometry. Etc.
             drive.localizer.update();
