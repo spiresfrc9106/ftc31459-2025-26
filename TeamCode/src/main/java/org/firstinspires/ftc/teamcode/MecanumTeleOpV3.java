@@ -96,9 +96,15 @@ public class MecanumTeleOpV3 extends LinearOpMode {
             double xySpeedFactor = 0.25;
             double rotationSpeedFactor = 0.25;
 
-            double x_vel_frac = -gamepad1.left_stick_y; // Sammy note the minus sign here
-            double y_vel_frac = -gamepad1.left_stick_x;
+            double x_vel_frac = gamepad1.left_stick_y; // Sammy note the minus sign here
+            double y_vel_frac = gamepad1.left_stick_x;
             double rot_vel_frac = -gamepad1.right_stick_x;
+
+            boolean fullSpeed = gamepad1.right_bumper;
+            if (fullSpeed) {
+                xySpeedFactor = 1.0;
+                rotationSpeedFactor = 1.0;
+            }
 
             if (Math.abs(x_vel_frac)<0.05) {
                 x_vel_frac = 0;
@@ -112,17 +118,17 @@ public class MecanumTeleOpV3 extends LinearOpMode {
                 rot_vel_frac = 0;
             }
 
-            double xIPS = x_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
-            double yIPS = y_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
-            double rotRadPS = rot_vel_frac * drive.PARAMS.maxAngVel * rotationSpeedFactor;
+            double xSpeedIPS = x_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
+            double ySpeedIPS = y_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
+            double rotSpeedRadPS = rot_vel_frac * drive.PARAMS.maxAngVel * rotationSpeedFactor;
 
 
-            packet.put("x IPS", xIPS);
-            packet.put("y IPS", xIPS);
+            packet.put("x IPS", xSpeedIPS);
+            packet.put("y IPS", xSpeedIPS);
 
-            packet.put("rot DPS", Math.toDegrees(rotRadPS));
+            packet.put("rot DPS", Math.toDegrees(rotSpeedRadPS));
 
-            drive.setFieldRelativeDrive(xIPS, yIPS, rotRadPS);
+            drive.setFieldRelativeDrive(xSpeedIPS, ySpeedIPS, rotSpeedRadPS);
 
             // Update everything. Odometry. Etc.
             drive.localizer.update();
