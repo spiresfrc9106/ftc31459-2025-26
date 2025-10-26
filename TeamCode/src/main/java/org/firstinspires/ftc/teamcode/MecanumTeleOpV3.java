@@ -76,7 +76,7 @@ public class MecanumTeleOpV3 extends LinearOpMode {
         int level=0;
 
         // Tom and Sammy: You really wanted the y 24 to be -24
-        Pose2d initialPose = new Pose2d(new Vector2d(-68,-24), Math.toRadians(0));
+        Pose2d initialPose = new Pose2d(new Vector2d(-68,-24), Math.toRadians(180));
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         ElapsedTime timer1 = new ElapsedTime();
