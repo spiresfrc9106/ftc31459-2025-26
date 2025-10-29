@@ -53,6 +53,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
+import org.firstinspires.ftc.teamcode.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.PoseMessage;
 import org.firstinspires.ftc.teamcode.messages.TankCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.TankLocalizerInputsMessage;
@@ -131,6 +132,8 @@ public final class TankDrive {
     private final DownsampledWriter tankCommandWriter = new DownsampledWriter("TANK_COMMAND", 50_000_000);
     private Pose2d error;
     private TankKinematics.WheelVelocities<Time> wheelVels = null;
+
+    Pose2dDual<Arclength> txWorldTarget = null;
     public class DriveLocalizer implements Localizer {
         public final List<Encoder> leftEncs, rightEncs;
         public final IMU imu;
@@ -308,7 +311,60 @@ public final class TankDrive {
         }
     }
 
-    public void sendPlotData(@NonNull TelemetryPacket p) {
+    public void setFieldRelativeDrive(double xIPS, double yIPS, double rotRadPS)
+    {
+        Rotation2d rot1 = new Rotation2d(xIPS, yIPS);
+        Pose2d poseEstimate = localizer.getPose();
+
+
+        Rotation2d rot2 = rot1.times(new Rotation2d(poseEstimate.heading.real, -poseEstimate.heading.imag));
+
+        PoseVelocity2dDual command =
+                PoseVelocity2dDual.constant(
+                        new PoseVelocity2d(new Vector2d(rot2.real, rot2.imag), rotRadPS), 2);
+
+        setMotorPowersFromCommand(command);
+
+    }
+
+    public void setRobotRelativeDrive(double xIPS, double rotRadPS)
+    {
+        Rotation2d rot1 = new Rotation2d(xIPS, 0.0);
+
+        PoseVelocity2dDual command =
+                PoseVelocity2dDual.constant(
+                        new PoseVelocity2d(new Vector2d(rot1.real, rot1.imag), rotRadPS), 2);
+
+        setMotorPowersFromCommand(command);
+
+    }
+    public void setMotorPowersFromCommand(PoseVelocity2dDual<Time> command){
+        double leftPower =  0.0;
+        double rightPower =  0.0;
+        double voltage = voltageSensor.getVoltage();
+        if ( (Math.abs(command.angVel.get(0)) > 1e-3) || (Math.abs(command.linearVel.x.get(0))>1e-3) || (Math.abs(command.linearVel.y.get(0))>1e-3)) {
+            final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
+                    PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
+            TankKinematics.WheelVelocities<Time> wheelVels = kinematics.inverse(command);
+            leftPower = feedforward.compute(wheelVels.left) / voltage;
+            rightPower = feedforward.compute(wheelVels.right) / voltage;
+        }
+
+
+        tankCommandWriter.write(new TankCommandMessage(
+                voltage, leftPower, rightPower
+        ));
+
+        for (DcMotorEx m : leftMotors) {
+            m.setPower(leftPower);
+        }
+        for (DcMotorEx m : rightMotors) {
+            m.setPower(rightPower);
+        }
+
+    }
+
+    public Canvas sendPlotData(@NonNull TelemetryPacket p) {
         p.put("x (in)", localizer.getPose().position.x);
         p.put("y (in)", localizer.getPose().position.y);
         p.put("heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
@@ -328,6 +384,19 @@ public final class TankDrive {
             p.put("right Vel", wheelVels.right.get(0));
             p.put("right Acl", wheelVels.right.get(1));
         }
+
+        // only draw when active; only one drive action should be active at a time
+        Canvas c = p.fieldOverlay();
+        drawPoseHistory(c);
+
+        if (txWorldTarget != null) {
+            c.setStroke("#4CAF50");
+            Drawing.drawRobot(c, txWorldTarget.value());
+        }
+
+        c.setStroke("#3F51B5");
+        Drawing.drawRobot(c, localizer.getPose());
+        return c;
     }
 
     public void setTankWheelPowers(PoseVelocity2dDual<Time> command) {
@@ -401,7 +470,7 @@ public final class TankDrive {
 
             DualNum<Time> x = timeTrajectory.profile.get(t);
 
-            Pose2dDual<Arclength> txWorldTarget = timeTrajectory.path.get(x.value(), 3);
+            txWorldTarget = timeTrajectory.path.get(x.value(), 3);
             targetPoseWriter.write(new PoseMessage(txWorldTarget.value()));
 
             updatePoseEstimate();
@@ -413,17 +482,7 @@ public final class TankDrive {
 
             error = txWorldTarget.value().minusExp(localizer.getPose());
 
-            sendPlotData(p);
-
-            // only draw when active; only one drive action should be active at a time
-            Canvas c = p.fieldOverlay();
-            drawPoseHistory(c);
-
-            c.setStroke("#4CAF50");
-            Drawing.drawRobot(c, txWorldTarget.value());
-
-            c.setStroke("#3F51B5");
-            Drawing.drawRobot(c, localizer.getPose());
+            Canvas c = sendPlotData(p);
 
             c.setStroke("#4CAF50FF");
             c.setStrokeWidth(1);
@@ -487,13 +546,6 @@ public final class TankDrive {
             setTankWheelPowers(command);
 
             Canvas c = p.fieldOverlay();
-            drawPoseHistory(c);
-
-            c.setStroke("#4CAF50");
-            Drawing.drawRobot(c, txWorldTarget.value());
-
-            c.setStroke("#3F51B5");
-            Drawing.drawRobot(c, localizer.getPose());
 
             c.setStroke("#7C4DFFFF");
             c.fillCircle(turn.beginPose.position.x, turn.beginPose.position.y, 2);
