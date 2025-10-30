@@ -20,27 +20,28 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Config
 public final class CoachMikeStarterShooter {
     public static class Params {
-        public double todoAddParamsHere = 0.04024;
+        public double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
+
+        public double FEED_PAUSE_TIME_SECONDS = 0.40; //Pause this long after a Feed before feeding again.
+        public double SERVO_STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
+        public double SERVO_FULL_SPEED = 1.0;
+
+        /*
+         * When we control our launcher motor, we are using encoders. These allow the control system
+         * to read the current speed of the motor and apply more or less power to keep it at a constant
+         * velocity. Here we are setting the target, and minimum velocity that the launcher should run
+         * at. The minimum velocity is a threshold for determining when to fire.
+         */
+        public double LAUNCHER_TARGET_VELOCITY_RPS = 42.0;
+        public double LAUNCHER_MIN_VELOCITY_RPS = 41.0;
     }
 
     public static Params PARAMS = new Params();
 
-    public double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
 
-    public double FEED_PAUSE_TIME_SECONDS = 0.40; //Pause this long after a Feed before feeding again.
-    public double SERVO_STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
-    public double SERVO_FULL_SPEED = 1.0;
+    public double LAUNCHER_STOP_VELOCITY_RPS = 0;
 
-    /*
-     * When we control our launcher motor, we are using encoders. These allow the control system
-     * to read the current speed of the motor and apply more or less power to keep it at a constant
-     * velocity. Here we are setting the target, and minimum velocity that the launcher should run
-     * at. The minimum velocity is a threshold for determining when to fire.
-     */
-    public double LAUNCHER_TARGET_VELOCITY = 1125;
-    public double LAUNCHER_MIN_VELOCITY = 1075;
-
-    public double LAUNCHER_STOP_VELOCITY = 0;
+    public double TICKS_PER_REVOLUTION = 24;
 
     // Declare OpMode members.
 
@@ -124,8 +125,8 @@ public final class CoachMikeStarterShooter {
         /*
          * set Feeders to an initial value to initialize the servo controller
          */
-        leftFeederServo.setPower(SERVO_STOP_SPEED);
-        rightFeederServo.setPower(SERVO_STOP_SPEED);
+        leftFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
+        rightFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
 
         launcherMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
 
@@ -145,10 +146,20 @@ public final class CoachMikeStarterShooter {
 
     public void sendPlotData(@NonNull TelemetryPacket p) {
         p.put("launchState", launchState);
-        p.put("flyWheelSpeed", launcherMotor.getVelocity());
+        p.put("flyWheelSpeed RPS", launchMotorGetVelocityRPS());
     }
 
 
+    public double launchMotorGetVelocityRPS() {
+        double velocityTicksPerSecond = launcherMotor.getVelocity();
+        double curVelocityRPS = velocityTicksPerSecond / TICKS_PER_REVOLUTION;
+        return curVelocityRPS;
+    }
+
+    public void launchMotorSetVelocityRPS(double velocityRPS){
+        double velocityTicksPerSecond = velocityRPS * TICKS_PER_REVOLUTION;
+        launcherMotor.setVelocity(velocityTicksPerSecond);
+    }
 
     boolean launch(boolean shotRequested) {
         boolean launchCompleted = false;
@@ -159,26 +170,26 @@ public final class CoachMikeStarterShooter {
                 }
                 break;
             case SPIN_UP:
-                launcherMotor.setVelocity(LAUNCHER_TARGET_VELOCITY);
-                if (launcherMotor.getVelocity() > LAUNCHER_MIN_VELOCITY) {
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS);
+                if (launchMotorGetVelocityRPS() > PARAMS.LAUNCHER_MIN_VELOCITY_RPS) {
                     launchState = LaunchState.LAUNCH;
                 }
                 break;
             case LAUNCH:
-                leftFeederServo.setPower(SERVO_FULL_SPEED);
-                rightFeederServo.setPower(SERVO_FULL_SPEED);
+                leftFeederServo.setPower(PARAMS.SERVO_FULL_SPEED);
+                rightFeederServo.setPower(PARAMS.SERVO_FULL_SPEED);
                 feederTimer.reset();
                 launchState = LaunchState.LAUNCHING;
                 break;
             case LAUNCHING:
-                if (feederTimer.seconds() > FEED_TIME_SECONDS) {
+                if (feederTimer.seconds() > PARAMS.FEED_TIME_SECONDS) {
                     launchState = LaunchState.AFTER_LAUNCH_PAUSE;
-                    leftFeederServo.setPower(SERVO_STOP_SPEED);
-                    rightFeederServo.setPower(SERVO_STOP_SPEED);
+                    leftFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
+                    rightFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
                 }
                 break;
             case AFTER_LAUNCH_PAUSE:
-                if (feederTimer.seconds() > FEED_TIME_SECONDS + FEED_PAUSE_TIME_SECONDS) {
+                if (feederTimer.seconds() > PARAMS.FEED_TIME_SECONDS + PARAMS.FEED_PAUSE_TIME_SECONDS) {
                     launchState = LaunchState.IDLE;
                     launchCompleted = true;
                 }
@@ -198,15 +209,16 @@ public final class CoachMikeStarterShooter {
              * queuing a shot.
              */
             if (commandWheelSpinUpForLocation1.isCommanded()) {
-                launcherMotor.setVelocity(LAUNCHER_TARGET_VELOCITY);
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS);
             } else if (commandWheelSpinDown.isCommanded()) { // stop flywheel
-                launcherMotor.setVelocity(LAUNCHER_STOP_VELOCITY);
+                launchMotorSetVelocityRPS(LAUNCHER_STOP_VELOCITY_RPS);
             }
 
             /*
              * Now we call our "Launch" function.
              */
             launch(commandLaunching.isCommanded());
+            sendPlotData(telemetryPacket);
 
             return true; // a return true means that run should run again.
         }
@@ -222,6 +234,8 @@ public final class CoachMikeStarterShooter {
 
             boolean launchCompleted = launch(true);
 
+            sendPlotData(telemetryPacket);
+
             return !launchCompleted; // a return true means that run should run again.
         }
     }
@@ -233,7 +247,9 @@ public final class CoachMikeStarterShooter {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            launcherMotor.setVelocity(LAUNCHER_TARGET_VELOCITY);
+            launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS);
+
+            sendPlotData(telemetryPacket);
 
             return false; // a return true means that run should run again.
         }
@@ -246,7 +262,9 @@ public final class CoachMikeStarterShooter {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            launcherMotor.setVelocity(LAUNCHER_STOP_VELOCITY);
+            launchMotorSetVelocityRPS(LAUNCHER_STOP_VELOCITY_RPS);
+
+            sendPlotData(telemetryPacket);
 
             return false; // a return true means that run should run again.
         }
