@@ -70,7 +70,7 @@ public class CoachMikeStarterTeleOp extends LinearOpMode {
         UserCommands wheelSpinUp = ()->{return gamepad1.y;};
 
         UserCommands wheelSpinDown = ()->{return gamepad1.b;};
-        UserCommands commandLaunch = ()->{return gamepad1.rightBumperWasPressed();};
+        UserCommands commandLaunch = ()->{return gamepad1.leftBumperWasPressed();};
 
         TankDrive drive = new TankDrive(hardwareMap, initialPose);
         CoachMikeStarterShooter shooter = new CoachMikeStarterShooter(
