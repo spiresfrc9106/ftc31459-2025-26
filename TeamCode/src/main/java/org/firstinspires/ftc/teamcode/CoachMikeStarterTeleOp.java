@@ -35,20 +35,16 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.PoseVelocity2dDual;
-import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /*
- * This OpMode executes control of the shooter motro from teleop
+ * This OpMode executes control of Starter Robot from teleop
  * The code is structured as a LinearOpMode
  *
  * In this mode the left stick forward back changes the target speed.
@@ -57,9 +53,9 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 @Config
-@TeleOp(name="MecanumTeleOpV3", group="Robot")
+@TeleOp(name="MikeStarterTeleOp", group="Robot")
 //@Disabled
-public class MecanumTeleOpV3 extends LinearOpMode {
+public class CoachMikeStarterTeleOp extends LinearOpMode {
 
     /* Declare OpMode members. */
 
@@ -71,13 +67,25 @@ public class MecanumTeleOpV3 extends LinearOpMode {
         // Tom and Sammy: You really wanted the y 24 to be -24
         Pose2d initialPose = new Pose2d(new Vector2d(-68,-24), Math.toRadians(180));
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
+        UserCommands wheelSpinUp = ()->{return gamepad1.y;};
+
+        UserCommands wheelSpinDown = ()->{return gamepad1.b;};
+        UserCommands commandLaunch = ()->{return gamepad1.leftBumperWasPressed();};
+
+        TankDrive drive = new TankDrive(hardwareMap, initialPose);
+        CoachMikeStarterShooter shooter = new CoachMikeStarterShooter(
+                hardwareMap, wheelSpinDown, wheelSpinUp, commandLaunch
+        );
         ElapsedTime timer1 = new ElapsedTime();
 
         // Wait for the game to start (driver presses START)
         waitForStart();
 
         List<Action> doActions = new ArrayList<>();
+
+        Action shooterTeleOpAction = shooter. new LaunchTeleOp();
+
+        doActions.add(shooterTeleOpAction);
 
         boolean start = false;
 
@@ -89,8 +97,7 @@ public class MecanumTeleOpV3 extends LinearOpMode {
             double xySpeedFactor = 0.25;
             double rotationSpeedFactor = 0.25;
 
-            double x_vel_frac = gamepad1.left_stick_y; // Sammy note the minus sign here
-            double y_vel_frac = gamepad1.left_stick_x;
+            double x_vel_frac = -gamepad1.left_stick_y;
             double rot_vel_frac = -gamepad1.right_stick_x;
 
             boolean fullSpeed = gamepad1.right_bumper;
@@ -103,16 +110,11 @@ public class MecanumTeleOpV3 extends LinearOpMode {
                 x_vel_frac = 0;
             }
 
-            if (Math.abs(y_vel_frac)<0.05) {
-                y_vel_frac = 0;
-            }
-
             if (Math.abs(rot_vel_frac)<0.05) {
                 rot_vel_frac = 0;
             }
 
             double xSpeedIPS = x_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
-            double ySpeedIPS = y_vel_frac * drive.PARAMS.maxWheelVel * xySpeedFactor;
             double rotSpeedRadPS = rot_vel_frac * drive.PARAMS.maxAngVel * rotationSpeedFactor;
 
 
@@ -121,7 +123,9 @@ public class MecanumTeleOpV3 extends LinearOpMode {
 
             packet.put("rot DPS", Math.toDegrees(rotSpeedRadPS));
 
-            drive.setFieldRelativeDrive(xSpeedIPS, ySpeedIPS, rotSpeedRadPS);
+            // TODO ySpeedIPS is not used inside of setRobotRelativeDrive
+
+            drive.setRobotRelativeDrive(xSpeedIPS,rotSpeedRadPS);
 
             // Update everything. Odometry. Etc.
             drive.localizer.update();
