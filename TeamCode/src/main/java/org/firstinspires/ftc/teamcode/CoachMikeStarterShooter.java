@@ -70,6 +70,7 @@ public final class CoachMikeStarterShooter {
     private enum LaunchState {
         IDLE,
         SPIN_UP,
+        SPIN_BACK,
         LAUNCH,
         LAUNCHING,
         AFTER_LAUNCH_PAUSE,
@@ -172,7 +173,17 @@ public final class CoachMikeStarterShooter {
             case SPIN_UP:
                 launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS);
                 if (launchMotorGetVelocityRPS() > PARAMS.LAUNCHER_MIN_VELOCITY_RPS) {
+                    launchState = LaunchState.SPIN_BACK;
+                    feederTimer.reset();
+                    leftFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
+                    rightFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
+                }
+                break;
+            case SPIN_BACK:
+                if (feederTimer.seconds() > PARAMS.FEED_TIME_SECONDS) {
                     launchState = LaunchState.LAUNCH;
+                    leftFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
+                    rightFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
                 }
                 break;
             case LAUNCH:
