@@ -16,7 +16,7 @@ public class MeepMeepTesting {
 
         // Tom and Sammy: Changed this to the initial pose.
         // Tom and Sammy: You really wanted the y 24 to be -24
-        Pose2d initialPose = new Pose2d(new Vector2d(-68,-24), Math.toRadians(0));
+        Pose2d initialPose = new Pose2d(new Vector2d(45,-53), Math.toRadians(180));
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
@@ -24,7 +24,7 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(
                         drive -> drive.trajectorySequenceBuilder(initialPose)
                                 // Tom and Sammy: You really wanted y=-12
-                                .splineTo(new Vector2d(-6, 6), Math.toRadians(135))
+                                .splineTo(new Vector2d(36, -36), Math.toRadians(-45))
                                 // Tom and Sammy, removing the Vel and Accel constraints: .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
                                 // Tom and Sammy, can't splineTo where we are, use .turn: .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
                                 //.turn(Math.toRadians(-45), new TurnConstraints(15,-15, 15)) // This is a relative angle

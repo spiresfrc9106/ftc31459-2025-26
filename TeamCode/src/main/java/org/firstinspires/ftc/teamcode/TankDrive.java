@@ -71,31 +71,41 @@ public final class TankDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+                RevHubOrientationOnRobot.LogoFacingDirection.UP;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
+                RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
 
-        // drive model parameters
-        public double inPerTick = 0.022598; // 0.04024;
-        public double trackWidthTicks = 663.0;
+        public double inPerTick = 0.0226628; // 0.04024;
+        public double trackWidthTicks = 711;
 
         // feedforward parameters (in tick units)
-        public double kS =  1.4556; // 0.868590 // 0.410;
-        public double kV =  0.00440; // 0.020354 //
-        public double kA = 0.002; // 0.003 //
+        public double kS =  2.036; // 0.868590 // 0.410;
+        public double kV =   0.0020; // 0.020354 //
+        public double kA = 0.0001; // 0.003 //
+        /*
+        // drive model parameters
+        public double inPerTick = 0.0226628; // 0.04024;
+        public double trackWidthTicks = 294.46;
+
+        // feedforward parameters (in tick units)
+        public double kS =  0.96; // 0.868590 // 0.410;
+        public double kV =  0.005; // 0.020354 //
+        public double kA = 0.001; // 0.003 //
+
+         */
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 50; // was 50
+        public double maxWheelVel = 75; // was 50
         public double minProfileAccel = -30; // was -30
-        public double maxProfileAccel = 50; // was 50
+        public double maxProfileAccel = 75; // was 50
 
         // turn profile parameters (in radians)
-        public double maxAngVel = Math.PI/5.0; // shared with path
-        public double maxAngAccel = Math.PI/20.0; // was Math.PI;
+        public double maxAngVel = Math.PI/2.0; // shared with path
+        public double maxAngAccel = Math.PI/2.0; // was Math.PI;
 
         // path controller gains
-        public double ramseteZeta = 0.7; // in the range (0, 1)
-        public double ramseteBBar = 2.0; // positive
+        public double ramseteZeta = 0.5; // in the range (0, 1)
+        public double ramseteBBar = 1.5; // positive
 
         // turn controller gains
         public double turnGain = 0.0;
@@ -165,7 +175,7 @@ public final class TankDrive {
 
             // TODO: reverse encoder directions if needed
             // Was:   leftEncs.get(0).setDirection(DcMotorSimple.Direction.REVERSE);
-            rightEncs.get(0).setDirection(DcMotorSimple.Direction.REVERSE);
+            leftEncs.get(0).setDirection(DcMotorSimple.Direction.REVERSE);
 
             imu = lazyImu.get();
 
@@ -280,7 +290,7 @@ public final class TankDrive {
 
         // TODO: reverse motor directions if needed
         // was:         leftMotors.get(0).setDirection(DcMotorSimple.Direction.REVERSE);
-        rightMotors.get(0).setDirection(DcMotorSimple.Direction.REVERSE);
+        leftMotors.get(0).setDirection(DcMotorSimple.Direction.REVERSE);
 
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
