@@ -22,7 +22,7 @@ public final class CoachMikeStarterShooter {
     public static class Params {
         public double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
 
-        public double FEED_PAUSE_TIME_SECONDS = 0.40; //Pause this long after a Feed before feeding again.
+        public double FEED_PAUSE_TIME_SECONDS = 1.0; //Pause this long after a Feed before feeding again.
         public double SERVO_STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
         public double SERVO_FULL_SPEED = 1.0;
 
@@ -32,8 +32,8 @@ public final class CoachMikeStarterShooter {
          * velocity. Here we are setting the target, and minimum velocity that the launcher should run
          * at. The minimum velocity is a threshold for determining when to fire.
          */
-        public double LAUNCHER_TARGET_VELOCITY_RPS = 42.0;
-        public double LAUNCHER_MIN_VELOCITY_RPS = 41.0;
+        public double LAUNCHER_TARGET_VELOCITY_RPS = 61.0;
+        public double LAUNCHER_MIN_VELOCITY_RPS = 60.0;
     }
 
     public static Params PARAMS = new Params();
@@ -70,6 +70,7 @@ public final class CoachMikeStarterShooter {
     private enum LaunchState {
         IDLE,
         SPIN_UP,
+        SPIN_BACK,
         LAUNCH,
         LAUNCHING,
         AFTER_LAUNCH_PAUSE,
@@ -172,7 +173,17 @@ public final class CoachMikeStarterShooter {
             case SPIN_UP:
                 launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS);
                 if (launchMotorGetVelocityRPS() > PARAMS.LAUNCHER_MIN_VELOCITY_RPS) {
+                    launchState = LaunchState.SPIN_BACK;
+                    feederTimer.reset();
+                    leftFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
+                    rightFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
+                }
+                break;
+            case SPIN_BACK:
+                if (feederTimer.seconds() > PARAMS.FEED_TIME_SECONDS) {
                     launchState = LaunchState.LAUNCH;
+                    leftFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
+                    rightFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
                 }
                 break;
             case LAUNCH:

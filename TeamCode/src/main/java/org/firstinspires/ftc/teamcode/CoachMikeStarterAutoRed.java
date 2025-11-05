@@ -17,6 +17,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -37,13 +38,16 @@ public class CoachMikeStarterAutoRed extends LinearOpMode {
 
     public static double startNow = 1.0;
 
+    public static double destX = 40;
+    public static double destY = -30;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
         int level=0;
 
-        // Tom and Sammy: You really wanted the y 24 to be -24
-        Pose2d initialPose = new Pose2d(new Vector2d(68,12), Math.toRadians(180));
+        //Pose2d initialPose = new Pose2d(new Vector2d(45,-53), Math.toRadians(-1));
+        Pose2d initialPose = new Pose2d(new Vector2d(45, -53), Math.toRadians(179));
 
         TankDrive drive = new TankDrive(hardwareMap, initialPose);
 
@@ -69,11 +73,16 @@ public class CoachMikeStarterAutoRed extends LinearOpMode {
         AccelConstraint endAccelConstraint = new ProfileAccelConstraint(-5, 10);
 
         Action actionDrive = drive.actionBuilder(initialPose)
-                .splineTo(new Vector2d(40, 12), Math.toRadians(180), endVelConstraint, endAccelConstraint)
+                //.splineTo(new Vector2d(36, -36), Math.toRadians(-1), endVelConstraint, endAccelConstraint)
+                .splineTo(new Vector2d(40, -53), Math.toRadians(179))
+                .splineTo(new Vector2d(destX, destY), Math.toRadians(135), endVelConstraint, endAccelConstraint)
+                //.turn(Math.toRadians(-44), new TurnConstraints(15,-15, 15))
                 .build();
 
         Action actionsWhileFirstDrive = new SequentialAction(
                 new ParallelAction(actionDrive, shooter.new SpinUpAutonomous()),
+                shooter.new LaunchAutonomous(),
+                shooter.new LaunchAutonomous(),
                 shooter.new LaunchAutonomous(),
                 shooter.new SpinDownAutonomous());
 

@@ -95,7 +95,7 @@ public class CoachMikeStarterTeleOp extends LinearOpMode {
             List<Action> newActions = new ArrayList<>();
 
             double xySpeedFactor = 0.25;
-            double rotationSpeedFactor = 0.25;
+            double rotationSpeedFactor = 1.0;
 
             double x_vel_frac = -gamepad1.left_stick_y;
             double rot_vel_frac = -gamepad1.right_stick_x;
@@ -103,7 +103,7 @@ public class CoachMikeStarterTeleOp extends LinearOpMode {
             boolean fullSpeed = gamepad1.right_bumper;
             if (fullSpeed) {
                 xySpeedFactor = 1.0;
-                rotationSpeedFactor = 1.0;
+                rotationSpeedFactor = 4.0;
             }
 
             if (Math.abs(x_vel_frac)<0.05) {
