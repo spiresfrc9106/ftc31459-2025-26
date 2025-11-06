@@ -20,9 +20,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Config
 public final class CoachMikeStarterShooter {
     public static class Params {
-        public double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
+        public double FEED_TIME_SECONDS = 0.3; //The feeder servos run this long when a shot is requested.
 
-        public double FEED_PAUSE_TIME_SECONDS = 1.0; //Pause this long after a Feed before feeding again.
+        public double WAIT_AFTER_BACKWARDS_TIME_SECONDS = 0.2;
+
+        public double FEED_PAUSE_TIME_SECONDS = 0.2; //Pause this long after a Feed before feeding again.
         public double SERVO_STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
         public double SERVO_FULL_SPEED = 1.0;
 
@@ -32,8 +34,8 @@ public final class CoachMikeStarterShooter {
          * velocity. Here we are setting the target, and minimum velocity that the launcher should run
          * at. The minimum velocity is a threshold for determining when to fire.
          */
-        public double LAUNCHER_TARGET_VELOCITY_RPS = 61.0;
-        public double LAUNCHER_MIN_VELOCITY_RPS = 60.0;
+        public double LAUNCHER_TARGET_VELOCITY_RPS = 55.0;
+        public double LAUNCHER_MIN_VELOCITY_RPS = 54.5;
     }
 
     public static Params PARAMS = new Params();
@@ -71,6 +73,7 @@ public final class CoachMikeStarterShooter {
         IDLE,
         SPIN_UP,
         SPIN_BACK,
+        WAIT_AFTER_SPIN_BACK,
         LAUNCH,
         LAUNCHING,
         AFTER_LAUNCH_PAUSE,
@@ -181,11 +184,16 @@ public final class CoachMikeStarterShooter {
                 break;
             case SPIN_BACK:
                 if (feederTimer.seconds() > PARAMS.FEED_TIME_SECONDS) {
-                    launchState = LaunchState.LAUNCH;
+                    launchState = LaunchState.WAIT_AFTER_SPIN_BACK;
                     leftFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
                     rightFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
+                    feederTimer.reset();
                 }
                 break;
+            case WAIT_AFTER_SPIN_BACK:
+                if (feederTimer.seconds() > PARAMS.WAIT_AFTER_BACKWARDS_TIME_SECONDS) {
+                    launchState = LaunchState.LAUNCH;
+                }
             case LAUNCH:
                 leftFeederServo.setPower(PARAMS.SERVO_FULL_SPEED);
                 rightFeederServo.setPower(PARAMS.SERVO_FULL_SPEED);
