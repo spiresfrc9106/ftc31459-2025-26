@@ -17,6 +17,8 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Trajectory;
 import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
@@ -37,9 +39,9 @@ import java.util.ListIterator;
 public class CoachMikeStarterAutoRed extends LinearOpMode {
 
     public static double startNow = 1.0;
-
-    public static double destX = 40;
-    public static double destY = -30;
+    public static double moveFactor = 0.5;
+    public static double rotationFactor = 0.5;
+    public static double moveAccelFactor = 0.5;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -47,7 +49,10 @@ public class CoachMikeStarterAutoRed extends LinearOpMode {
         int level=0;
 
         //Pose2d initialPose = new Pose2d(new Vector2d(45,-53), Math.toRadians(-1));
-        Pose2d initialPose = new Pose2d(new Vector2d(45, -53), Math.toRadians(179));
+        Pose2d initialPose = new Pose2d(new Vector2d(53, -51), Math.toRadians(114));
+        Pose2d secondPose = new Pose2d(new Vector2d(41, -39), Math.toRadians(120));
+        Pose2d thirdPose = new Pose2d(new Vector2d(-12, 24), Math.toRadians(135));
+        Pose2d fourthPose = new Pose2d(new Vector2d( -30, 53), Math.toRadians(135));
 
         TankDrive drive = new TankDrive(hardwareMap, initialPose);
 
@@ -64,27 +69,35 @@ public class CoachMikeStarterAutoRed extends LinearOpMode {
         // Wait for the game to start (driver presses START)
         waitForStart();
 
-        VelConstraint endVelConstraint =
+        VelConstraint velConstraint =
                 new MinVelConstraint(Arrays.asList(
-                        drive.kinematics.new WheelVelConstraint(10),
-                        new AngularVelConstraint(5)
+                        drive.kinematics.new WheelVelConstraint(drive.PARAMS.maxWheelVel*moveFactor),
+                        new AngularVelConstraint(drive.PARAMS.maxAngVel*rotationFactor)
                 ));
 
-        AccelConstraint endAccelConstraint = new ProfileAccelConstraint(-5, 10);
+        AccelConstraint accelConstraint = new ProfileAccelConstraint(drive.PARAMS.minProfileAccel*moveAccelFactor, drive.PARAMS.maxProfileAccel*moveAccelFactor);
+
 
         Action actionDrive = drive.actionBuilder(initialPose)
-                //.splineTo(new Vector2d(36, -36), Math.toRadians(-1), endVelConstraint, endAccelConstraint)
-                .splineTo(new Vector2d(40, -53), Math.toRadians(179))
-                .splineTo(new Vector2d(destX, destY), Math.toRadians(135), endVelConstraint, endAccelConstraint)
+                .splineTo(secondPose.position,secondPose.heading, velConstraint, accelConstraint)
+                //.splineTo(new Vector2d(destX, destY), Math.toRadians(135), endVelConstraint, endAccelConstraint)
                 //.turn(Math.toRadians(-44), new TurnConstraints(15,-15, 15))
                 .build();
 
         Action actionsWhileFirstDrive = new SequentialAction(
                 new ParallelAction(actionDrive, shooter.new SpinUpAutonomous()),
+                new SleepAction(1.0),
                 shooter.new LaunchAutonomous(),
+                new SleepAction(1.0),
                 shooter.new LaunchAutonomous(),
+                new SleepAction(1.0),
                 shooter.new LaunchAutonomous(),
-                shooter.new SpinDownAutonomous());
+                shooter.new SpinDownAutonomous(),
+                drive.actionBuilder(secondPose)
+                        .splineTo(thirdPose.position, thirdPose.heading, velConstraint, accelConstraint)
+                        .splineTo(fourthPose.position, fourthPose.heading, velConstraint, accelConstraint)
+                        .build()
+        );
 
         List<Action> runningActions = new ArrayList<>();
         runningActions.add(actionsWhileFirstDrive);
