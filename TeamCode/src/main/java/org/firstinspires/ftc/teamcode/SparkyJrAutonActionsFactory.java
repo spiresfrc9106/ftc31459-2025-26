@@ -51,8 +51,8 @@ public class SparkyJrAutonActionsFactory {
     public Action buildAction(TankDrive drive, SparkyJrShooter shooter, StopPose stopPose) {
         this.drive = drive;
         this.shooter = shooter;
-        Pose2d secondPose = new Pose2d(new Vector2d(41, 39*PlusOrMinusOne), Math.toRadians(-120*PlusOrMinusOne));
-        Pose2d thirdPose = new Pose2d(new Vector2d( 19, 24*PlusOrMinusOne), Math.toRadians(-179*PlusOrMinusOne));
+        Pose2d secondPose = new Pose2d(new Vector2d(53-8*0.445, 43*PlusOrMinusOne), Math.toRadians(-114*PlusOrMinusOne));
+        Pose2d thirdPose = new Pose2d(new Vector2d( -6, 28*PlusOrMinusOne), Math.toRadians(-179*PlusOrMinusOne));
         Pose2d fourthPose = new Pose2d(new Vector2d( -30, -53*PlusOrMinusOne), Math.toRadians(-135*PlusOrMinusOne));
 
         VelConstraint velConstraint =
@@ -71,11 +71,11 @@ public class SparkyJrAutonActionsFactory {
         listOfActions.add(new ParallelAction(actionDrive, shooter.new SpinUpAutonomous()));
         listOfActions.add(new SleepAction(1.0));
         listOfActions.add(shooter.new LaunchAutonomous());
-        listOfActions.add(new SleepAction(2.0));
-        listOfActions.add(shooter.new LaunchAutonomous());
-        listOfActions.add(new SleepAction(2.0));
+        listOfActions.add(new SleepAction(1.0));
         listOfActions.add(shooter.new LaunchAutonomous());
         listOfActions.add(new SleepAction(1.0));
+        listOfActions.add(shooter.new LaunchAutonomous());
+        //listOfActions.add(new SleepAction(1.0));
         listOfActions.add(shooter.new SpinDownAutonomous());
         switch (stopPose) {
             case STOP_AT_POSE2:
@@ -92,6 +92,7 @@ public class SparkyJrAutonActionsFactory {
                         .build());
                 break;
         }
+        listOfActions.add(new SleepAction(1.0));
 
         Action actionWhileFirstDrive = new SequentialAction(listOfActions);
 

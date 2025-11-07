@@ -64,7 +64,8 @@ public class SparkyJrCommonLinearOpMode extends LinearOpMode {
         double xySpeedFactor = 0.25;
         double rotationSpeedFactor = 1.0;
 
-        double x_vel_frac = -gamepad1.left_stick_y;
+        double x_vel_frac = gamepad1.left_stick_y;  // removed the minus sign to make
+                                                    // the intake side the front in teleop
         double rot_vel_frac = -gamepad1.right_stick_x;
 
         boolean fullSpeed = gamepad1.right_bumper;
