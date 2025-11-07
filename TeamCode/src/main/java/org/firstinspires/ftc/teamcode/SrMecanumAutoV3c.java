@@ -12,7 +12,6 @@ import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -23,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Autonomous(name="AutoBlue", group="Robot", preselectTeleOp = "MecanumTeleOpV3")
+@Autonomous(name="Sr-Blue", group="Robot", preselectTeleOp = "SrMecanumTeleOpV3")
 @Config
-public class MecanumAutoV3c extends LinearOpMode {
+public class SrMecanumAutoV3c extends LinearOpMode {
 
     public static double startNow = 1.0;
 

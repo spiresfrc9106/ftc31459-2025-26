@@ -22,7 +22,7 @@ public final class SparkyJrShooter {
     public static class Params {
         public double FEED_TIME_SECONDS = 0.3; //The feeder servos run this long when a shot is requested.
 
-        public double WAIT_AFTER_BACKWARDS_TIME_SECONDS = 0.2;
+        public double WAIT_AFTER_BACKWARDS_TIME_SECONDS = 1.0;
 
         public double FEED_PAUSE_TIME_SECONDS = 0.2; //Pause this long after a Feed before feeding again.
         public double SERVO_STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.

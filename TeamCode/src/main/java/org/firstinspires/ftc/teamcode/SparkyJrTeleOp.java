@@ -42,21 +42,14 @@ public class SparkyJrTeleOp extends SparkyJrCommonLinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        isTeleOp = true;
+        SparkyJrAutonActionsFactory actionsFactory = new SparkyJrAutonActionsFactory(false);
 
-        SparkyJrAutonActionsFactory actionsFactory = new SparkyJrAutonActionsFactory(
-                false
-        );
-
-        intitialize(actionsFactory.initialPose);
-
-        runningActionsList = new ArrayList<Action>();
+        intitializeTeleOp(actionsFactory.initialPose);
 
         Action shooterTeleOpAction = shooter. new LaunchTeleOp();
 
         runningActionsList.add(shooterTeleOpAction);
 
         loopBody();
-
     }
 }

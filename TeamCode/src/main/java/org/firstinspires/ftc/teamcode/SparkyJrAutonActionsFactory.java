@@ -46,15 +46,13 @@ public class SparkyJrAutonActionsFactory {
             PlusOrMinusOne = -1.0;
         }
         initialPose = new Pose2d(new Vector2d(53, 51*PlusOrMinusOne), Math.toRadians(-114*PlusOrMinusOne));
-
-
     }
 
     public Action buildAction(TankDrive drive, SparkyJrShooter shooter, StopPose stopPose) {
         this.drive = drive;
         this.shooter = shooter;
         Pose2d secondPose = new Pose2d(new Vector2d(41, 39*PlusOrMinusOne), Math.toRadians(-120*PlusOrMinusOne));
-        Pose2d thirdPose = new Pose2d(new Vector2d(-12, -24*PlusOrMinusOne), Math.toRadians(-135*PlusOrMinusOne));
+        Pose2d thirdPose = new Pose2d(new Vector2d( 19, 24*PlusOrMinusOne), Math.toRadians(-179*PlusOrMinusOne));
         Pose2d fourthPose = new Pose2d(new Vector2d( -30, -53*PlusOrMinusOne), Math.toRadians(-135*PlusOrMinusOne));
 
         VelConstraint velConstraint =
@@ -65,7 +63,6 @@ public class SparkyJrAutonActionsFactory {
 
         AccelConstraint accelConstraint = new ProfileAccelConstraint(drive.PARAMS.minProfileAccel* autonMoveAccelFactor, drive.PARAMS.maxProfileAccel* autonMoveAccelFactor);
 
-
         Action actionDrive = drive.actionBuilder(initialPose)
                 .splineTo(secondPose.position,secondPose.heading, velConstraint, accelConstraint)
                 .build();
@@ -74,10 +71,11 @@ public class SparkyJrAutonActionsFactory {
         listOfActions.add(new ParallelAction(actionDrive, shooter.new SpinUpAutonomous()));
         listOfActions.add(new SleepAction(1.0));
         listOfActions.add(shooter.new LaunchAutonomous());
-        listOfActions.add(new SleepAction(1.0));
+        listOfActions.add(new SleepAction(2.0));
+        listOfActions.add(shooter.new LaunchAutonomous());
+        listOfActions.add(new SleepAction(2.0));
         listOfActions.add(shooter.new LaunchAutonomous());
         listOfActions.add(new SleepAction(1.0));
-        listOfActions.add(shooter.new LaunchAutonomous());
         listOfActions.add(shooter.new SpinDownAutonomous());
         switch (stopPose) {
             case STOP_AT_POSE2:

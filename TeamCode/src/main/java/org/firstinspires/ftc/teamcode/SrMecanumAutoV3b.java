@@ -12,7 +12,6 @@ import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -23,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Autonomous(name="Mecanum: AutoV3", group="Robot")
+@Autonomous(name="Sr-Red", group="Robot", preselectTeleOp = "SrMecanumTeleOpV3")
 @Config
-public class MecanumAutoV3 extends LinearOpMode {
+public class SrMecanumAutoV3b extends LinearOpMode {
 
     public static double startNow = 1.0;
 
@@ -35,7 +34,7 @@ public class MecanumAutoV3 extends LinearOpMode {
         int level=0;
 
         // Tom and Sammy: You really wanted the y 24 to be -24
-        Pose2d initialPose = new Pose2d(new Vector2d(-68,-24), Math.toRadians(0));
+        Pose2d initialPose = new Pose2d(new Vector2d(68,12), Math.toRadians(180));
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         ElapsedTime timer1 = new ElapsedTime();
@@ -54,10 +53,10 @@ public class MecanumAutoV3 extends LinearOpMode {
         Action a = drive.actionBuilder(initialPose)
                 // Tom and Sammy: this is in initialPose:.splineTo(new Vector2d(-68,24), Math.toRadians(0))
                 // Tom and Sammy: You really wanted y=-12
-                .splineTo(new Vector2d(12, -12), Math.toRadians(135), endVelConstraint, endAccelConstraint)
+                .splineTo(new Vector2d(40, 12), Math.toRadians(180), endVelConstraint, endAccelConstraint)
                 // Tom and Sammy, removing the Vel and Accel constraints: .splineTo(new Vector2d(12, 12), Math.toRadians(135), endVelConstraint, endAccelConstraint )
                 // Tom and Sammy, can't splineTo where we are, use .turn: .splineTo(new Vector2d(12, 12), Math.toRadians(90), endVelConstraint, endAccelConstraint )
-                .turn(Math.toRadians(-45), new TurnConstraints(15,-15, 15)) // This is a relative angle
+                //.turn(Math.toRadians(0), new TurnConstraints(15,-15, 15)) // This is a relative angle
                 .build();
 
         List<Action> runningActions = new ArrayList<>();

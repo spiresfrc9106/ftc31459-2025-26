@@ -18,7 +18,7 @@ public class SparkyJrCommonLinearOpMode extends LinearOpMode {
 
     public static double startNow = 1.0;
 
-    public List<Action> runningActionsList = new ArrayList<>();
+    public List<Action> runningActionsList = new ArrayList<Action>();
 
     TankDrive drive = null;
     SparkyJrShooter shooter = null;
@@ -49,6 +49,15 @@ public class SparkyJrCommonLinearOpMode extends LinearOpMode {
                 hardwareMap, wheelSpinDown, wheelSpinUp, commandLaunch
         );
 
+    }
+
+    public void intitializeAuton(Pose2d initialPose) throws InterruptedException {
+        isTeleOp = false;
+        intitialize(initialPose);
+    }
+    public void intitializeTeleOp(Pose2d initialPose) throws InterruptedException {
+        isTeleOp = true;
+        intitialize(initialPose);
     }
 
     public void teleOpBody() throws InterruptedException {
