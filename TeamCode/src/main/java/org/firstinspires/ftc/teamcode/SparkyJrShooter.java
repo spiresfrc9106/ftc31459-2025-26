@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-public final class CoachMikeStarterShooter {
+public final class SparkyJrShooter {
     public static class Params {
         public double FEED_TIME_SECONDS = 0.3; //The feeder servos run this long when a shot is requested.
 
@@ -85,7 +85,7 @@ public final class CoachMikeStarterShooter {
     private UserCommands commandWheelSpinUpForLocation1;
     private UserCommands commandLaunching;
 
-    public CoachMikeStarterShooter(
+    public SparkyJrShooter(
             HardwareMap hardwareMap,
             UserCommands commandWheelSpinDown,
             UserCommands commandWheelSpinUpForLocation1,
