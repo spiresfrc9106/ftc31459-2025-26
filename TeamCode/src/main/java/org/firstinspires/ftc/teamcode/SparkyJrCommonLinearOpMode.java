@@ -34,19 +34,21 @@ public class SparkyJrCommonLinearOpMode extends LinearOpMode {
 
         UserCommands wheelSpinDown;
         UserCommands commandLaunch;
-
+        UserCommands wheelSpinBack;
         if (isTeleOp) {
             wheelSpinUp = ()->{return gamepad1.y;};
             wheelSpinDown = ()->{return gamepad1.b;};
             commandLaunch = ()->{return gamepad1.leftBumperWasPressed();};
+            wheelSpinBack = ()->{return gamepad1.x;};
         } else {
             wheelSpinUp = ()->{return false;};
             wheelSpinDown = ()->{return false;};
             commandLaunch = ()->{return false;};
+            wheelSpinBack = ()->{return false;};
         }
 
         shooter = new SparkyJrShooter(
-                hardwareMap, wheelSpinDown, wheelSpinUp, commandLaunch
+                hardwareMap, wheelSpinDown, wheelSpinUp, commandLaunch, wheelSpinBack
         );
 
     }

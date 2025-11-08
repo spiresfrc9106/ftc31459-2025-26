@@ -36,10 +36,10 @@ public final class SparkyJrShooter {
          */
         public double LAUNCHER_TARGET_VELOCITY_RPS = 55.0;
         public double LAUNCHER_MIN_VELOCITY_RPS = 54.5;
+        public double LAUNCHER_BACK_VELOCITY_RPS = -5;
     }
 
     public static Params PARAMS = new Params();
-
 
     public double LAUNCHER_STOP_VELOCITY_RPS = 0;
 
@@ -84,12 +84,15 @@ public final class SparkyJrShooter {
     private UserCommands commandWheelSpinDown;
     private UserCommands commandWheelSpinUpForLocation1;
     private UserCommands commandLaunching;
+    private UserCommands commandWheelSpinBack;
+
 
     public SparkyJrShooter(
             HardwareMap hardwareMap,
             UserCommands commandWheelSpinDown,
             UserCommands commandWheelSpinUpForLocation1,
-            UserCommands commandLaunching
+            UserCommands commandLaunching,
+            UserCommands commandWheelSpinBack
     ) {
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
@@ -144,6 +147,7 @@ public final class SparkyJrShooter {
         this.commandWheelSpinDown = commandWheelSpinDown;
         this.commandWheelSpinUpForLocation1 = commandWheelSpinUpForLocation1;
         this.commandLaunching = commandLaunching;
+        this.commandWheelSpinBack = commandWheelSpinBack;
 
     }
 
@@ -227,7 +231,9 @@ public final class SparkyJrShooter {
              * Here we give the user control of the speed of the launcher motor without automatically
              * queuing a shot.
              */
-            if (commandWheelSpinUpForLocation1.isCommanded()) {
+            if (commandWheelSpinBack.isCommanded()) {
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_BACK_VELOCITY_RPS);
+            } else if (commandWheelSpinUpForLocation1.isCommanded()) {
                 launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS);
             } else if (commandWheelSpinDown.isCommanded()) { // stop flywheel
                 launchMotorSetVelocityRPS(LAUNCHER_STOP_VELOCITY_RPS);
@@ -236,7 +242,9 @@ public final class SparkyJrShooter {
             /*
              * Now we call our "Launch" function.
              */
-            launch(commandLaunching.isCommanded());
+            if(!commandWheelSpinBack.isCommanded()) {
+                launch(commandLaunching.isCommanded());
+            }
             sendPlotData(telemetryPacket);
 
             return true; // a return true means that run should run again.
