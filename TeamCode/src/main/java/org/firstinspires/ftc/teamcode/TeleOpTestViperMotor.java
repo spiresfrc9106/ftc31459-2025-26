@@ -36,14 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 /*
- * This OpMode executes control of the shooter motro from teleop
+ * This OpMode executes control of the viper motor from teleop
  * The code is structured as a LinearOpMode
  *
  * In this mode the left stick forward back changes the target speed.
@@ -52,17 +47,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 @Config
-@TeleOp(name="TestShooterMotor", group="Robot")
+@TeleOp(name="TestViperMotor", group="Robot")
 //@Disabled
-public class TeleOpTestShooterMotor extends LinearOpMode {
+public class TeleOpTestViperMotor extends LinearOpMode {
 
     /* Declare OpMode members. */
     public DcMotorEx  shootMotor   = null;
 
 
-    public static double maxShootMotorRpm = 6000;
+    public static double maxShootMotorRpm = 300;
     public static double targetSpeedRpm = 0;
-    static final double TICKS_PER_REVOLUTION = 28;
+    static final double TICKS_PER_REVOLUTION = 1425.1;
 
     @Override
     public void runOpMode() {
@@ -71,7 +66,7 @@ public class TeleOpTestShooterMotor extends LinearOpMode {
         int prevPosition = 0;
 
         // Define and Initialize Motors
-        shootMotor  = hardwareMap.get(DcMotorEx.class, "shooter_motor");
+        shootMotor  = hardwareMap.get(DcMotorEx.class, "viper");
 
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
@@ -103,15 +98,7 @@ public class TeleOpTestShooterMotor extends LinearOpMode {
             // Run wheels in POV mode (note: The joystick goes negative when pushed forward, so negate it)
             // In this mode the Left stick moves the robot fwd and back, the Right stick turns left and right.
             // This way it's also easy to just drive straight, or just turn.
-            targetSpeedRpm = targetSpeedRpm + -gamepad1.left_stick_y * maxShootMotorRpm / 100.0;
-
-
-            // Normalize the values so that we are within max rpm
-            if (targetSpeedRpm > maxShootMotorRpm) {
-                targetSpeedRpm = maxShootMotorRpm;
-            } else if (targetSpeedRpm < 0.0) {
-                targetSpeedRpm = 0.0;
-            }
+            targetSpeedRpm = -gamepad1.left_stick_y * maxShootMotorRpm;
 
             double targetTicksPerSecond = (targetSpeedRpm / 60) * TICKS_PER_REVOLUTION;
             // Output the safe vales to the motor drives.
