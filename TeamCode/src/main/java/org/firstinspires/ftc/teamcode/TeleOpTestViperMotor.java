@@ -52,7 +52,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class TeleOpTestViperMotor extends LinearOpMode {
 
     /* Declare OpMode members. */
-    public DcMotorEx  shootMotor   = null;
+    public DcMotorEx viperMotor = null;
 
 
     public static double maxShootMotorRpm = 300;
@@ -66,19 +66,19 @@ public class TeleOpTestViperMotor extends LinearOpMode {
         int prevPosition = 0;
 
         // Define and Initialize Motors
-        shootMotor  = hardwareMap.get(DcMotorEx.class, "viper");
+        viperMotor = hardwareMap.get(DcMotorEx.class, "viper");
 
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        shootMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        viperMotor.setDirection(DcMotorEx.Direction.REVERSE);
 
 
         // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
-        shootMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        viperMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        prevPosition = shootMotor.getCurrentPosition();
+        prevPosition = viperMotor.getCurrentPosition();
         timer.reset();
 
 
@@ -102,11 +102,18 @@ public class TeleOpTestViperMotor extends LinearOpMode {
 
             double targetTicksPerSecond = (targetSpeedRpm / 60) * TICKS_PER_REVOLUTION;
             // Output the safe vales to the motor drives.
-            shootMotor.setVelocity(targetTicksPerSecond);
-            int curPosition = shootMotor.getCurrentPosition();
+            int curPosition = viperMotor.getCurrentPosition();
+            viperMotor.setVelocity(targetTicksPerSecond);
+            /*
+            if (Math.abs(targetTicksPerSecond)<0.1 * (maxShootMotorRpm / 60) * TICKS_PER_REVOLUTION) {
+                viperMotor.setTargetPosition(curPosition);
+            } else {
+                viperMotor.setVelocity(targetTicksPerSecond);
+            }*/
+
             double elapsedTimeSeconds = timer.seconds();
             timer.reset();
-            double velocityTicksPerSecond = shootMotor.getVelocity();
+            double velocityTicksPerSecond = viperMotor.getVelocity();
             double curVelocityRpm = velocityTicksPerSecond * 60 / TICKS_PER_REVOLUTION;
 
             double ourRpmCalc = 60.0 * (curPosition - prevPosition) / TICKS_PER_REVOLUTION / elapsedTimeSeconds;
