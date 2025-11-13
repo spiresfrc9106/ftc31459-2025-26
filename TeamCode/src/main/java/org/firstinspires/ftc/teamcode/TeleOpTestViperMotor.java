@@ -43,8 +43,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  *
  * In this mode the left stick forward back changes the target speed.
  *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 @Config
 @TeleOp(name="TestViperMotor", group="Robot")
@@ -67,66 +65,89 @@ public class TeleOpTestViperMotor extends LinearOpMode {
 
         // Define and Initialize Motors
         viperMotor = hardwareMap.get(DcMotorEx.class, "viper");
-
-
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
         viperMotor.setDirection(DcMotorEx.Direction.REVERSE);
-
-
-        // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
         viperMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         prevPosition = viperMotor.getCurrentPosition();
         timer.reset();
-
-
-
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData(">", "Robot Ready.  Press START.");    //
-        telemetry.update();
 
         // Wait for the game to start (driver presses START)
         waitForStart();
 
         targetSpeedRpm =  0.0;
 
+        double oldPositionTicks = viperMotor.getCurrentPosition();
+        double prevLeftStickWithDeadZone = 100;
+        double holdPositionTicks = 0.0;
+        boolean hold = false;
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
-            // Run wheels in POV mode (note: The joystick goes negative when pushed forward, so negate it)
-            // In this mode the Left stick moves the robot fwd and back, the Right stick turns left and right.
-            // This way it's also easy to just drive straight, or just turn.
-            targetSpeedRpm = -gamepad1.left_stick_y * maxShootMotorRpm;
-
-            double targetTicksPerSecond = (targetSpeedRpm / 60) * TICKS_PER_REVOLUTION;
-            // Output the safe vales to the motor drives.
-            int curPosition = viperMotor.getCurrentPosition();
-            viperMotor.setVelocity(targetTicksPerSecond);
-            /*
-            if (Math.abs(targetTicksPerSecond)<0.1 * (maxShootMotorRpm / 60) * TICKS_PER_REVOLUTION) {
-                viperMotor.setTargetPosition(curPosition);
-            } else {
-                viperMotor.setVelocity(targetTicksPerSecond);
-            }*/
-
             double elapsedTimeSeconds = timer.seconds();
-            timer.reset();
-            double velocityTicksPerSecond = viperMotor.getVelocity();
-            double curVelocityRpm = velocityTicksPerSecond * 60 / TICKS_PER_REVOLUTION;
+            double targetPeriodSeconds = 0.020;
 
-            double ourRpmCalc = 60.0 * (curPosition - prevPosition) / TICKS_PER_REVOLUTION / elapsedTimeSeconds;
 
-            TelemetryPacket packet = new TelemetryPacket();
-            packet.put("Target Speed (Rpm)", targetSpeedRpm );
-            packet.put("Current Speed (Rpm)", curVelocityRpm);
-            packet.put("Loop Period (s)", elapsedTimeSeconds);
-            packet.put("Our Speed Calc (Rpm)", curVelocityRpm);
+            if (elapsedTimeSeconds < targetPeriodSeconds) {
+                sleep(1);
+            } else {
 
-            FtcDashboard.getInstance().sendTelemetryPacket(packet);
+                double leftStickWithDeadZone = -gamepad1.left_stick_y;
+                if (Math.abs(leftStickWithDeadZone) < 0.05) {
+                    leftStickWithDeadZone = 0;
+                }
 
-            // sleep(50); // TODO perhaps deleteme
+                if (!hold && (leftStickWithDeadZone == 0) && prevLeftStickWithDeadZone != 0) {
+                    hold = true;
+                    holdPositionTicks = viperMotor.getCurrentPosition();
+                    oldPositionTicks = holdPositionTicks;
+                } else if (leftStickWithDeadZone !=0) {
+                    hold = false;
+                }
+
+                int curPositionTicks = viperMotor.getCurrentPosition();
+
+                double targetTicksPerSecond = 0;
+
+                if (hold) {
+                    targetTicksPerSecond = -0.2*(curPositionTicks - holdPositionTicks) / targetPeriodSeconds;
+                } else {
+                    targetSpeedRpm = leftStickWithDeadZone * maxShootMotorRpm;
+
+                    targetTicksPerSecond = (targetSpeedRpm / 60) * TICKS_PER_REVOLUTION;
+                }
+
+                // The viper slide is only driven up, it coasts down.
+                if (targetTicksPerSecond<0) {
+                    targetTicksPerSecond = 0;
+                }
+
+                viperMotor.setVelocity(targetTicksPerSecond);
+
+                double velocityTicksPerSecond = viperMotor.getVelocity();
+                double curVelocityRpm = velocityTicksPerSecond * 60 / TICKS_PER_REVOLUTION;
+
+                double ourRpmCalc = 60.0 * (curPositionTicks - prevPosition) / TICKS_PER_REVOLUTION / elapsedTimeSeconds;
+
+                int holdInt = 0;
+                if (hold)
+                    holdInt = 1;
+
+                TelemetryPacket packet = new TelemetryPacket();
+                packet.put("Target Speed (Rpm)", targetSpeedRpm);
+                packet.put("Current Speed (Rpm)", curVelocityRpm);
+                packet.put("Current Pos (ticks)", curPositionTicks);
+                packet.put("hold Pos (ticks)", holdPositionTicks);
+                packet.put("Loop Period (s)", elapsedTimeSeconds);
+                packet.put("Our Speed Calc (Rpm)", curVelocityRpm);
+                packet.put("Busy (fraction)", (timer.seconds() - elapsedTimeSeconds) / targetPeriodSeconds);
+                packet.put("holdInt", holdInt);
+
+                FtcDashboard.getInstance().sendTelemetryPacket(packet);
+
+                timer.reset();
+
+            }
         }
+
     }
 }
