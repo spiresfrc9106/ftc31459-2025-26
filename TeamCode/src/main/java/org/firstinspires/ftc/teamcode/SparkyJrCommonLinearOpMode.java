@@ -30,26 +30,29 @@ public class SparkyJrCommonLinearOpMode extends LinearOpMode {
     public void intitialize(Pose2d initialPose) throws InterruptedException {
         drive = new TankDrive(hardwareMap, initialPose);
 
-        UserCommands wheelSpinUp;
-
+        UserCommands wheelSpinUpFar;
+        UserCommands wheelSpinUpMedium;
+        UserCommands wheelSpinUpClose;
         UserCommands wheelSpinDown;
         UserCommands commandLaunch;
         UserCommands wheelSpinBack;
         if (isTeleOp) {
-            wheelSpinUp = ()->{return gamepad1.y;};
+            wheelSpinUpFar = ()->{return gamepad1.y;};
+            wheelSpinUpMedium = ()->{return gamepad1.x;};
+            wheelSpinUpClose = ()->{return gamepad1.a;};
             wheelSpinDown = ()->{return gamepad1.b;};
             commandLaunch = ()->{return gamepad1.leftBumperWasPressed();};
-            wheelSpinBack = ()->{return gamepad1.x;};
+            wheelSpinBack = ()->{return gamepad1.left_trigger > 0.5;};
         } else {
-            wheelSpinUp = ()->{return false;};
+            wheelSpinUpFar = ()->{return false;};
+            wheelSpinUpMedium = ()->{return false;};
+            wheelSpinUpClose = ()->{return false;};
             wheelSpinDown = ()->{return false;};
             commandLaunch = ()->{return false;};
             wheelSpinBack = ()->{return false;};
         }
 
-        shooter = new SparkyJrShooter(
-                hardwareMap, wheelSpinDown, wheelSpinUp, commandLaunch, wheelSpinBack
-        );
+        shooter = new SparkyJrShooter(hardwareMap, wheelSpinDown, wheelSpinUpFar, wheelSpinUpMedium, wheelSpinUpClose, commandLaunch, wheelSpinBack);
 
     }
 

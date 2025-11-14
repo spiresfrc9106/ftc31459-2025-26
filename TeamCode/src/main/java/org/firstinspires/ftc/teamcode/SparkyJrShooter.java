@@ -20,7 +20,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Config
 public final class SparkyJrShooter {
     public static class Params {
-        public double FEED_TIME_SECONDS = 0.3; //The feeder servos run this long when a shot is requested.
+        public double FEED_TIME_SECONDS = 0.5; //The feeder servos run this long when a shot is requested.
 
         public double WAIT_AFTER_BACKWARDS_TIME_SECONDS = 1.0;
 
@@ -34,8 +34,8 @@ public final class SparkyJrShooter {
          * velocity. Here we are setting the target, and minimum velocity that the launcher should run
          * at. The minimum velocity is a threshold for determining when to fire.
          */
-        public double[] LAUNCHER_TARGET_VELOCITY_RPS = {55.0, 65.0, 75.0};
-        public double[] LAUNCHER_MIN_VELOCITY_RPS = {54.0, 64.0, 74.0};
+        public double[] LAUNCHER_TARGET_VELOCITY_RPS = {65.0, 60.0, 55.0};
+        public double[] LAUNCHER_MIN_VELOCITY_RPS = {64.5, 59.5, 54.5};
     }
 
     public static Params PARAMS = new Params();
@@ -52,7 +52,7 @@ public final class SparkyJrShooter {
 
     ElapsedTime feederTimer = new ElapsedTime();
     
-    private int speedIndex = 0; // 0 for low, 1 for medium, 2 for high
+    private int speedIndex = 0; // 0 for close, 1 for medium, 2 for long
 
     /*
      * TECH TIP: State Machines
@@ -83,9 +83,9 @@ public final class SparkyJrShooter {
     private LaunchState launchState;
 
     private UserCommands commandWheelSpinDown;
-    private UserCommands commandWheelSpinUpForLocation1;
-    private UserCommands commandWheelSpinUpForLocation2;
-    private UserCommands commandWheelSpinUpForLocation3;
+    private UserCommands commandWheelSpinUpFar;
+    private UserCommands commandWheelSpinUpMedium;
+    private UserCommands commandWheelSpinUpClose;
     private UserCommands commandLaunching;
     private UserCommands commandWheelSpinBack;
 
@@ -93,9 +93,9 @@ public final class SparkyJrShooter {
     public SparkyJrShooter(
             HardwareMap hardwareMap,
             UserCommands commandWheelSpinDown,
-            UserCommands commandWheelSpinUpForLocation1,
-                    UserCommands commandWheelSpinUpForLocation2,
-                    UserCommands commandWheelSpinUpForLocation3,
+            UserCommands commandWheelSpinUpFar,
+                    UserCommands commandWheelSpinUpMedium,
+                    UserCommands commandWheelSpinUpClose,
                     UserCommands commandLaunching,
             UserCommands commandWheelSpinBack
     ) {
@@ -150,9 +150,9 @@ public final class SparkyJrShooter {
 
 
         this.commandWheelSpinDown = commandWheelSpinDown;
-        this.commandWheelSpinUpForLocation1 = commandWheelSpinUpForLocation1;
-                this.commandWheelSpinUpForLocation2 = commandWheelSpinUpForLocation2;
-                this.commandWheelSpinUpForLocation3 = commandWheelSpinUpForLocation3;
+        this.commandWheelSpinUpFar = commandWheelSpinUpFar;
+                this.commandWheelSpinUpMedium = commandWheelSpinUpMedium;
+                this.commandWheelSpinUpClose = commandWheelSpinUpClose;
                 this.commandLaunching = commandLaunching;
         this.commandWheelSpinBack = commandWheelSpinBack;
 
@@ -240,13 +240,13 @@ public final class SparkyJrShooter {
              * Here we give the user control of the speed of the launcher motor without automatically
              * queuing a shot.
              */
-            if (commandWheelSpinUpForLocation1.isCommanded()) {
+            if (commandWheelSpinUpFar.isCommanded()) {
                     speedIndex = 0;
                     launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
-                    } else if (commandWheelSpinUpForLocation2.isCommanded()) {
+                    } else if (commandWheelSpinUpMedium.isCommanded()) {
                     speedIndex = 1;
                     launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
-                    } else if (commandWheelSpinUpForLocation3.isCommanded()) {
+                    } else if (commandWheelSpinUpClose.isCommanded()) {
                     speedIndex = 2;
                     launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
                     } else if (commandWheelSpinDown.isCommanded()) { // stop flywheel
