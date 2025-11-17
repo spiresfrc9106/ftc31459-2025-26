@@ -51,7 +51,7 @@ public final class SparkyJrShooter {
     private CRServo rightFeederServo = null;
 
     ElapsedTime feederTimer = new ElapsedTime();
-    
+
     private int speedIndex = 0; // 0 for close, 1 for medium, 2 for long
 
     /*
@@ -94,9 +94,9 @@ public final class SparkyJrShooter {
             HardwareMap hardwareMap,
             UserCommands commandWheelSpinDown,
             UserCommands commandWheelSpinUpFar,
-                    UserCommands commandWheelSpinUpMedium,
-                    UserCommands commandWheelSpinUpClose,
-                    UserCommands commandLaunching,
+            UserCommands commandWheelSpinUpMedium,
+            UserCommands commandWheelSpinUpClose,
+            UserCommands commandLaunching,
             UserCommands commandWheelSpinBack
     ) {
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
@@ -151,9 +151,9 @@ public final class SparkyJrShooter {
 
         this.commandWheelSpinDown = commandWheelSpinDown;
         this.commandWheelSpinUpFar = commandWheelSpinUpFar;
-                this.commandWheelSpinUpMedium = commandWheelSpinUpMedium;
-                this.commandWheelSpinUpClose = commandWheelSpinUpClose;
-                this.commandLaunching = commandLaunching;
+        this.commandWheelSpinUpMedium = commandWheelSpinUpMedium;
+        this.commandWheelSpinUpClose = commandWheelSpinUpClose;
+        this.commandLaunching = commandLaunching;
         this.commandWheelSpinBack = commandWheelSpinBack;
 
     }
@@ -163,7 +163,7 @@ public final class SparkyJrShooter {
         p.put("launchState", launchState);
         p.put("flyWheelSpeed RPS", launchMotorGetVelocityRPS());
         p.put("targetFlyWheelSpeed RPS", PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
-                p.put("speedIndex", speedIndex);
+        p.put("speedIndex", speedIndex);
     }
 
 
@@ -188,12 +188,12 @@ public final class SparkyJrShooter {
                 break;
             case SPIN_UP:
                 launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
-                    if (launchMotorGetVelocityRPS() > PARAMS.LAUNCHER_MIN_VELOCITY_RPS[speedIndex]) {
+                if (launchMotorGetVelocityRPS() > PARAMS.LAUNCHER_MIN_VELOCITY_RPS[speedIndex]) {
                     launchState = LaunchState.LAUNCH;
-                feederTimer.reset();
-                leftFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
-                rightFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
-            }
+                    feederTimer.reset();
+                    leftFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
+                    rightFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
+                }
                 break;
             /*case SPIN_BACK:
                 if (feederTimer.seconds() > PARAMS.FEED_TIME_SECONDS) {
@@ -241,15 +241,15 @@ public final class SparkyJrShooter {
              * queuing a shot.
              */
             if (commandWheelSpinUpFar.isCommanded()) {
-                    speedIndex = 0;
-                    launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
-                    } else if (commandWheelSpinUpMedium.isCommanded()) {
-                    speedIndex = 1;
-                    launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
-                    } else if (commandWheelSpinUpClose.isCommanded()) {
-                    speedIndex = 2;
-                    launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
-                    } else if (commandWheelSpinDown.isCommanded()) { // stop flywheel
+                speedIndex = 0;
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
+            } else if (commandWheelSpinUpMedium.isCommanded()) {
+                speedIndex = 1;
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
+            } else if (commandWheelSpinUpClose.isCommanded()) {
+                speedIndex = 2;
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
+            } else if (commandWheelSpinDown.isCommanded()) { // stop flywheel
                 launchMotorSetVelocityRPS(LAUNCHER_STOP_VELOCITY_RPS);
             }
 
@@ -269,7 +269,7 @@ public final class SparkyJrShooter {
         private final int autoSpeedIndex;
 
         public LaunchAutonomous(int speedIndex) {
-                this.autoSpeedIndex = speedIndex;
+            this.autoSpeedIndex = speedIndex;
         }
 
         @Override
@@ -287,15 +287,15 @@ public final class SparkyJrShooter {
         private final int autoSpeedIndex;
 
         public SpinUpAutonomous(int speedIndex) {
-                this.autoSpeedIndex = speedIndex;
+            this.autoSpeedIndex = speedIndex;
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             speedIndex = autoSpeedIndex;
-                    launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
+            launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
 
-                    sendPlotData(telemetryPacket);
+            sendPlotData(telemetryPacket);
 
             return false; // a return true means that run should run again.
         }
