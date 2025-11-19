@@ -34,6 +34,19 @@ public final class SparkyJrShooter {
          * velocity. Here we are setting the target, and minimum velocity that the launcher should run
          * at. The minimum velocity is a threshold for determining when to fire.
          */
+
+        public enum LauncherSpeed {
+            FAR(0),
+            MEDIUM(1),
+            CLOSE(2);
+
+            public final int index;
+
+            LauncherSpeed(int index) {
+                this.index = index;
+            }
+        }
+
         public double[] LAUNCHER_TARGET_VELOCITY_RPS = {65.0, 60.0, 55.0};
         public double[] LAUNCHER_MIN_VELOCITY_RPS = {64.5, 59.5, 54.5};
     }
@@ -51,8 +64,7 @@ public final class SparkyJrShooter {
     private CRServo rightFeederServo = null;
 
     ElapsedTime feederTimer = new ElapsedTime();
-
-    private int speedIndex = 0; // 0 for close, 1 for medium, 2 for long
+    private Params.LauncherSpeed currentSpeed = Params.LauncherSpeed.FAR;
 
     /*
      * TECH TIP: State Machines
@@ -162,8 +174,9 @@ public final class SparkyJrShooter {
     public void sendPlotData(@NonNull TelemetryPacket p) {
         p.put("launchState", launchState);
         p.put("flyWheelSpeed RPS", launchMotorGetVelocityRPS());
-        p.put("targetFlyWheelSpeed RPS", PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
-        p.put("speedIndex", speedIndex);
+
+        p.put("targetFlyWheelSpeed RPS", PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
+        p.put("speedMode", currentSpeed); // Logs "FAR", "MEDIUM", or "CLOSE"
     }
 
 
@@ -187,8 +200,9 @@ public final class SparkyJrShooter {
                 }
                 break;
             case SPIN_UP:
-                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
-                if (launchMotorGetVelocityRPS() > PARAMS.LAUNCHER_MIN_VELOCITY_RPS[speedIndex]) {
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
+
+                if (launchMotorGetVelocityRPS() > PARAMS.LAUNCHER_MIN_VELOCITY_RPS[currentSpeed.index]) {
                     launchState = LaunchState.LAUNCH;
                     feederTimer.reset();
                     leftFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
@@ -241,14 +255,14 @@ public final class SparkyJrShooter {
              * queuing a shot.
              */
             if (commandWheelSpinUpFar.isCommanded()) {
-                speedIndex = 0;
-                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
+                currentSpeed = Params.LauncherSpeed.FAR;
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
             } else if (commandWheelSpinUpMedium.isCommanded()) {
-                speedIndex = 1;
-                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
+                currentSpeed = Params.LauncherSpeed.MEDIUM;
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
             } else if (commandWheelSpinUpClose.isCommanded()) {
-                speedIndex = 2;
-                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
+                currentSpeed = Params.LauncherSpeed.CLOSE;
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
             } else if (commandWheelSpinDown.isCommanded()) { // stop flywheel
                 launchMotorSetVelocityRPS(LAUNCHER_STOP_VELOCITY_RPS);
             }
@@ -266,15 +280,15 @@ public final class SparkyJrShooter {
     }
 
     public class LaunchAutonomous implements Action {
-        private final int autoSpeedIndex;
+        private final Params.LauncherSpeed autoSpeed;
 
-        public LaunchAutonomous(int speedIndex) {
-            this.autoSpeedIndex = speedIndex;
+        public LaunchAutonomous(Params.LauncherSpeed speed) {
+            this.autoSpeed = speed;
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            speedIndex = autoSpeedIndex;
+            currentSpeed = autoSpeed;
             boolean launchCompleted = launch(true);
 
             sendPlotData(telemetryPacket);
@@ -284,16 +298,16 @@ public final class SparkyJrShooter {
     }
 
     public class SpinUpAutonomous implements Action {
-        private final int autoSpeedIndex;
+        private final Params.LauncherSpeed autoSpeed;
 
-        public SpinUpAutonomous(int speedIndex) {
-            this.autoSpeedIndex = speedIndex;
+        public SpinUpAutonomous(Params.LauncherSpeed speed) {
+            this.autoSpeed = speed;
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            speedIndex = autoSpeedIndex;
-            launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[speedIndex]);
+            currentSpeed = autoSpeed;
+            launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
 
             sendPlotData(telemetryPacket);
 
