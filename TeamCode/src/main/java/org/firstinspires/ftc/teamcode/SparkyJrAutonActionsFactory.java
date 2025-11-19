@@ -68,13 +68,13 @@ public class SparkyJrAutonActionsFactory {
                 .build();
 
         List<Action> listOfActions = new ArrayList<>();
-        listOfActions.add(new ParallelAction(actionDrive, shooter.new SpinUpAutonomous(0)));
+        listOfActions.add(new ParallelAction(actionDrive, shooter.new SpinUpAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR)));
         listOfActions.add(new SleepAction(1.0));
-        listOfActions.add(shooter.new LaunchAutonomous(0));
+        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR));
         listOfActions.add(new SleepAction(1.0));
-        listOfActions.add(shooter.new LaunchAutonomous(0));
+        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR));
         listOfActions.add(new SleepAction(1.0));
-        listOfActions.add(shooter.new LaunchAutonomous(0));
+        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR));
         //listOfActions.add(new SleepAction(1.0));
         listOfActions.add(shooter.new SpinDownAutonomous());
         switch (stopPose) {
