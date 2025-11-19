@@ -65,9 +65,9 @@ public class SparkySrCommonLinearOpMode extends LinearOpMode {
 
     public void teleOpBody() throws InterruptedException {
         double xySpeedFactor = 0.25;
-        double rotationSpeedFactor = 1.0;
+        double rotationSpeedFactor = 0.25;
 
-        double x_vel_frac = gamepad1.left_stick_y;  // removed the minus sign to make
+        double x_vel_frac = -gamepad1.left_stick_y;  // removed the minus sign to make
                                                     // the intake side the front in teleop
 
         double y_vel_frac = -gamepad1.left_stick_x;
@@ -76,7 +76,7 @@ public class SparkySrCommonLinearOpMode extends LinearOpMode {
         boolean fullSpeed = gamepad1.right_bumper;
         if (fullSpeed) {
             xySpeedFactor = 1.0;
-            rotationSpeedFactor = 4.0;
+            rotationSpeedFactor = 1.0;
         }
 
         if (Math.abs(x_vel_frac)<0.05) {
@@ -149,22 +149,6 @@ public class SparkySrCommonLinearOpMode extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
-
-
-        SparkySrAutonActionsFactory actionsFactory = new SparkySrAutonActionsFactory(
-                true
-        );
-
-        intitialize(actionsFactory.initialPose);
-
-        runningActionsList = new ArrayList<Action>();
-
-        Action runningAction = actionsFactory.buildAction(drive, shooter, SparkySrAutonActionsFactory.StopPose.STOP_AT_POSE2);
-
-        runningActionsList.add(runningAction);
-
-        loopBody();
 
     }
 }

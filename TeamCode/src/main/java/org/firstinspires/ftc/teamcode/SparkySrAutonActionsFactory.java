@@ -41,11 +41,28 @@ public class SparkySrAutonActionsFactory {
         STOP_AT_POSE4,
     }
 
-    SparkySrAutonActionsFactory(boolean isRed){
+    public enum StartPose {
+        START_AT_GOAL,
+        START_AT_SMALL_TRIANGLE,
+    }
+
+    StartPose startPose;
+
+
+
+    SparkySrAutonActionsFactory(boolean isRed, StartPose startPose){
         if (isRed) {
             PlusOrMinusOne = -1.0;
         }
-        initialPose = new Pose2d(new Vector2d(53, 51*PlusOrMinusOne), Math.toRadians(-114*PlusOrMinusOne));
+        this.startPose = startPose;
+        switch (startPose) {
+            case START_AT_GOAL:
+                initialPose = new Pose2d(new Vector2d(53, 51 * PlusOrMinusOne), Math.toRadians(-114 * PlusOrMinusOne));
+                break;
+            case START_AT_SMALL_TRIANGLE:
+                initialPose = new Pose2d(new Vector2d(-68, 24 * PlusOrMinusOne), Math.toRadians(0 * PlusOrMinusOne));
+                break;
+        }
     }
 
     public Action buildAction( MecanumDrive drive, SparkyJrShooter shooter, StopPose stopPose) {
@@ -103,7 +120,7 @@ public class SparkySrAutonActionsFactory {
     public Action buildActionDriveOut( MecanumDrive drive, SparkyJrShooter shooter) {
         this.drive = drive;
         this.shooter = shooter;
-        Pose2d secondPose = new Pose2d(new Vector2d(53+24*0.445, (51+24)*PlusOrMinusOne), Math.toRadians(-114*PlusOrMinusOne));
+        Pose2d secondPose = new Pose2d(new Vector2d(-68+48, 24*PlusOrMinusOne), Math.toRadians(0*PlusOrMinusOne));
 
         VelConstraint velConstraint =
                 new MinVelConstraint(Arrays.asList(

@@ -4,8 +4,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import java.util.ArrayList;
-
 @Autonomous(name="Blue-Jr-Close-Mv-Sh", group="Robot", preselectTeleOp = "JrTeleOp")
 @Config
 public class SparkyJrAutoBlueCloseMvSh extends SparkyJrCommonLinearOpMode {

@@ -40,7 +40,7 @@ public class SparkySrTeleOp extends SparkySrCommonLinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        SparkySrAutonActionsFactory actionsFactory = new SparkySrAutonActionsFactory(false);
+        SparkySrAutonActionsFactory actionsFactory = new SparkySrAutonActionsFactory(false, SparkySrAutonActionsFactory.StartPose.START_AT_SMALL_TRIANGLE);
 
         intitializeTeleOp(actionsFactory.initialPose);
 
