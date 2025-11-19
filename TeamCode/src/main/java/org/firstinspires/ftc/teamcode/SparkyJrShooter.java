@@ -20,7 +20,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Config
 public final class SparkyJrShooter {
     public static class Params {
-        public double FEED_TIME_SECONDS = 0.3; //The feeder servos run this long when a shot is requested.
+        public double FEED_TIME_SECONDS = 0.5; //The feeder servos run this long when a shot is requested.
 
         public double WAIT_AFTER_BACKWARDS_TIME_SECONDS = 1.0;
 
@@ -34,9 +34,21 @@ public final class SparkyJrShooter {
          * velocity. Here we are setting the target, and minimum velocity that the launcher should run
          * at. The minimum velocity is a threshold for determining when to fire.
          */
-        public double LAUNCHER_TARGET_VELOCITY_RPS = 55.0;
-        public double LAUNCHER_MIN_VELOCITY_RPS = 54.5;
-        public double LAUNCHER_BACK_VELOCITY_RPS = -20;
+
+        public enum LauncherSpeed {
+            FAR(0),
+            MEDIUM(1),
+            CLOSE(2);
+
+            public final int index;
+
+            LauncherSpeed(int index) {
+                this.index = index;
+            }
+        }
+
+        public double[] LAUNCHER_TARGET_VELOCITY_RPS = {65.0, 60.0, 55.0};
+        public double[] LAUNCHER_MIN_VELOCITY_RPS = {64.5, 59.5, 54.5};
     }
 
     public static Params PARAMS = new Params();
@@ -52,6 +64,7 @@ public final class SparkyJrShooter {
     private CRServo rightFeederServo = null;
 
     ElapsedTime feederTimer = new ElapsedTime();
+    private Params.LauncherSpeed currentSpeed = Params.LauncherSpeed.FAR;
 
     /*
      * TECH TIP: State Machines
@@ -72,8 +85,8 @@ public final class SparkyJrShooter {
     private enum LaunchState {
         IDLE,
         SPIN_UP,
-        SPIN_BACK,
-        WAIT_AFTER_SPIN_BACK,
+        // SPIN_BACK,
+        // WAIT_AFTER_SPIN_BACK,
         LAUNCH,
         LAUNCHING,
         AFTER_LAUNCH_PAUSE,
@@ -82,7 +95,9 @@ public final class SparkyJrShooter {
     private LaunchState launchState;
 
     private UserCommands commandWheelSpinDown;
-    private UserCommands commandWheelSpinUpForLocation1;
+    private UserCommands commandWheelSpinUpFar;
+    private UserCommands commandWheelSpinUpMedium;
+    private UserCommands commandWheelSpinUpClose;
     private UserCommands commandLaunching;
     private UserCommands commandWheelSpinBack;
 
@@ -90,7 +105,9 @@ public final class SparkyJrShooter {
     public SparkyJrShooter(
             HardwareMap hardwareMap,
             UserCommands commandWheelSpinDown,
-            UserCommands commandWheelSpinUpForLocation1,
+            UserCommands commandWheelSpinUpFar,
+            UserCommands commandWheelSpinUpMedium,
+            UserCommands commandWheelSpinUpClose,
             UserCommands commandLaunching,
             UserCommands commandWheelSpinBack
     ) {
@@ -145,7 +162,9 @@ public final class SparkyJrShooter {
 
 
         this.commandWheelSpinDown = commandWheelSpinDown;
-        this.commandWheelSpinUpForLocation1 = commandWheelSpinUpForLocation1;
+        this.commandWheelSpinUpFar = commandWheelSpinUpFar;
+        this.commandWheelSpinUpMedium = commandWheelSpinUpMedium;
+        this.commandWheelSpinUpClose = commandWheelSpinUpClose;
         this.commandLaunching = commandLaunching;
         this.commandWheelSpinBack = commandWheelSpinBack;
 
@@ -155,6 +174,9 @@ public final class SparkyJrShooter {
     public void sendPlotData(@NonNull TelemetryPacket p) {
         p.put("launchState", launchState);
         p.put("flyWheelSpeed RPS", launchMotorGetVelocityRPS());
+
+        p.put("targetFlyWheelSpeed RPS", PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
+        p.put("speedMode", currentSpeed); // Logs "FAR", "MEDIUM", or "CLOSE"
     }
 
 
@@ -178,15 +200,16 @@ public final class SparkyJrShooter {
                 }
                 break;
             case SPIN_UP:
-                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS);
-                if (launchMotorGetVelocityRPS() > PARAMS.LAUNCHER_MIN_VELOCITY_RPS) {
-                    launchState = LaunchState.SPIN_BACK;
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
+
+                if (launchMotorGetVelocityRPS() > PARAMS.LAUNCHER_MIN_VELOCITY_RPS[currentSpeed.index]) {
+                    launchState = LaunchState.LAUNCH;
                     feederTimer.reset();
                     leftFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
                     rightFeederServo.setPower(-PARAMS.SERVO_FULL_SPEED);
                 }
                 break;
-            case SPIN_BACK:
+            /*case SPIN_BACK:
                 if (feederTimer.seconds() > PARAMS.FEED_TIME_SECONDS) {
                     launchState = LaunchState.WAIT_AFTER_SPIN_BACK;
                     leftFeederServo.setPower(PARAMS.SERVO_STOP_SPEED);
@@ -197,7 +220,7 @@ public final class SparkyJrShooter {
             case WAIT_AFTER_SPIN_BACK:
                 if (feederTimer.seconds() > PARAMS.WAIT_AFTER_BACKWARDS_TIME_SECONDS) {
                     launchState = LaunchState.LAUNCH;
-                }
+                }*/
             case LAUNCH:
                 leftFeederServo.setPower(PARAMS.SERVO_FULL_SPEED);
                 rightFeederServo.setPower(PARAMS.SERVO_FULL_SPEED);
@@ -231,10 +254,15 @@ public final class SparkyJrShooter {
              * Here we give the user control of the speed of the launcher motor without automatically
              * queuing a shot.
              */
-            if (commandWheelSpinBack.isCommanded()) {
-                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_BACK_VELOCITY_RPS);
-            } else if (commandWheelSpinUpForLocation1.isCommanded()) {
-                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS);
+            if (commandWheelSpinUpFar.isCommanded()) {
+                currentSpeed = Params.LauncherSpeed.FAR;
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
+            } else if (commandWheelSpinUpMedium.isCommanded()) {
+                currentSpeed = Params.LauncherSpeed.MEDIUM;
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
+            } else if (commandWheelSpinUpClose.isCommanded()) {
+                currentSpeed = Params.LauncherSpeed.CLOSE;
+                launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
             } else if (commandWheelSpinDown.isCommanded()) { // stop flywheel
                 launchMotorSetVelocityRPS(LAUNCHER_STOP_VELOCITY_RPS);
             }
@@ -252,13 +280,15 @@ public final class SparkyJrShooter {
     }
 
     public class LaunchAutonomous implements Action {
+        private final Params.LauncherSpeed autoSpeed;
 
-        public LaunchAutonomous() {
+        public LaunchAutonomous(Params.LauncherSpeed speed) {
+            this.autoSpeed = speed;
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-
+            currentSpeed = autoSpeed;
             boolean launchCompleted = launch(true);
 
             sendPlotData(telemetryPacket);
@@ -268,13 +298,16 @@ public final class SparkyJrShooter {
     }
 
     public class SpinUpAutonomous implements Action {
+        private final Params.LauncherSpeed autoSpeed;
 
-        public SpinUpAutonomous() {
+        public SpinUpAutonomous(Params.LauncherSpeed speed) {
+            this.autoSpeed = speed;
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS);
+            currentSpeed = autoSpeed;
+            launchMotorSetVelocityRPS(PARAMS.LAUNCHER_TARGET_VELOCITY_RPS[currentSpeed.index]);
 
             sendPlotData(telemetryPacket);
 
