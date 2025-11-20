@@ -32,8 +32,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import java.util.ArrayList;
-
 @Config
 @TeleOp(name="JrTeleOp", group="Robot")
 //@Disabled
