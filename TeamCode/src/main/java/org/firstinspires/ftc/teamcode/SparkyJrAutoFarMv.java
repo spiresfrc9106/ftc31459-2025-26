@@ -3,9 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 @Autonomous(name="Jr-Far-Mv", group="Robot", preselectTeleOp = "JrTeleOp")
 @Config
+@Disabled
 public class SparkyJrAutoFarMv extends SparkyJrCommonLinearOpMode {
 
     @Override

@@ -30,9 +30,11 @@
 package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @Config
+@Disabled
 @TeleOp(name="JrTeleOp", group="Robot")
 //@Disabled
 public class SparkyJrTeleOp extends SparkyJrCommonLinearOpMode {
