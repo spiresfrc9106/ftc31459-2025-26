@@ -4,9 +4,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="Sr-Far-Mv", group="Robot", preselectTeleOp = "SrTeleOp")
+@Autonomous(name="Blue-Sr-Far-Sh-SparkySrBlueAutoFarMvMv", group="Robot", preselectTeleOp = "SrTeleOp")
 @Config
-public class SparkySrAutoFarMv extends SparkySrCommonLinearOpMode {
+public class SparkySrBlueAutoFarMv extends SparkySrCommonLinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -15,7 +15,8 @@ public class SparkySrAutoFarMv extends SparkySrCommonLinearOpMode {
 
         intitializeAuton(actionsFactory.initialPose);
 
-        Action runningAction = actionsFactory.buildActionDriveOut(drive, shooter);
+        Action runningAction = actionsFactory.buildActionFarShootDriveOut(
+                drive, shooter);
         runningActionsList.add(runningAction);
 
         loopBody();

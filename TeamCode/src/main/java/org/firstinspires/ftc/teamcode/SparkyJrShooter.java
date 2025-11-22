@@ -47,8 +47,8 @@ public final class SparkyJrShooter {
             }
         }
 
-        public double[] LAUNCHER_TARGET_VELOCITY_RPS = {65.0, 60.0, 55.0};
-        public double[] LAUNCHER_MIN_VELOCITY_RPS = {64.5, 59.5, 54.5};
+        public double[] LAUNCHER_TARGET_VELOCITY_RPS = {75.0, 65, 57.0};
+        public double[] LAUNCHER_MIN_VELOCITY_RPS = {74.5, 64.5, 56.5};
     }
 
     public static Params PARAMS = new Params();

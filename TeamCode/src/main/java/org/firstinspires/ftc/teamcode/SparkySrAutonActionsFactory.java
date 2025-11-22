@@ -15,6 +15,9 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +25,7 @@ import java.util.List;
 @Config
 public class SparkySrAutonActionsFactory {
 
+    private static final Logger log = LoggerFactory.getLogger(SparkySrAutonActionsFactory.class);
     public static double autonMoveFactor = 0.5;
     public static double autonRotationFactor = 0.5;
     public static double autonMoveAccelFactor = 0.5;
@@ -39,6 +43,7 @@ public class SparkySrAutonActionsFactory {
         STOP_AT_POSE2,
         STOP_AT_POSE3,
         STOP_AT_POSE4,
+        STOP_AT_POSE_FAR2
     }
 
     public enum StartPose {
@@ -60,7 +65,7 @@ public class SparkySrAutonActionsFactory {
                 initialPose = new Pose2d(new Vector2d(53, 51 * PlusOrMinusOne), Math.toRadians(-114 * PlusOrMinusOne));
                 break;
             case START_AT_SMALL_TRIANGLE:
-                initialPose = new Pose2d(new Vector2d(-68, 24 * PlusOrMinusOne), Math.toRadians(0 * PlusOrMinusOne));
+                initialPose = new Pose2d(new Vector2d(-63, 14.5 * PlusOrMinusOne), Math.toRadians(18 * PlusOrMinusOne));
                 break;
         }
     }
@@ -71,7 +76,7 @@ public class SparkySrAutonActionsFactory {
         Pose2d secondPose = new Pose2d(new Vector2d(53-8*0.445, 43*PlusOrMinusOne), Math.toRadians(-114*PlusOrMinusOne));
         Pose2d thirdPose = new Pose2d(new Vector2d( -6, 28*PlusOrMinusOne), Math.toRadians(-179*PlusOrMinusOne));
         Pose2d fourthPose = new Pose2d(new Vector2d( -30, -53*PlusOrMinusOne), Math.toRadians(-135*PlusOrMinusOne));
-
+        Pose2d farSecondPose = new Pose2d(new Vector2d(-63 + 24, 14.5 * PlusOrMinusOne), Math.toRadians(0*PlusOrMinusOne));
         VelConstraint velConstraint =
                 new MinVelConstraint(Arrays.asList(
                         drive.kinematics.new WheelVelConstraint(drive.PARAMS.maxWheelVel* autonMoveFactor),
@@ -85,13 +90,13 @@ public class SparkySrAutonActionsFactory {
                 .build();
 
         List<Action> listOfActions = new ArrayList<>();
-        listOfActions.add(new ParallelAction(actionDrive, shooter.new SpinUpAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR)));
+        listOfActions.add(new ParallelAction(actionDrive, shooter.new SpinUpAutonomous(SparkyJrShooter.Params.LauncherSpeed.CLOSE)));
         listOfActions.add(new SleepAction(1.0));
-        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR));
+        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.CLOSE));
         listOfActions.add(new SleepAction(1.0));
-        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR));
+        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.CLOSE));
         listOfActions.add(new SleepAction(1.0));
-        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR));
+        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.CLOSE));
         //listOfActions.add(new SleepAction(1.0));
         listOfActions.add(shooter.new SpinDownAutonomous());
         switch (stopPose) {
@@ -121,6 +126,42 @@ public class SparkySrAutonActionsFactory {
         this.drive = drive;
         this.shooter = shooter;
         Pose2d secondPose = new Pose2d(new Vector2d(-68+48, 24*PlusOrMinusOne), Math.toRadians(0*PlusOrMinusOne));
+
+        VelConstraint velConstraint =
+                new MinVelConstraint(Arrays.asList(
+                        drive.kinematics.new WheelVelConstraint(drive.PARAMS.maxWheelVel* autonMoveFactor),
+                        new AngularVelConstraint(drive.PARAMS.maxAngVel* autonRotationFactor)
+                ));
+
+        AccelConstraint accelConstraint = new ProfileAccelConstraint(drive.PARAMS.minProfileAccel* autonMoveAccelFactor, drive.PARAMS.maxProfileAccel* autonMoveAccelFactor);
+
+        List<Action> listOfActions = new ArrayList<>();
+        listOfActions.add(shooter.new SpinUpAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR));
+        listOfActions.add(new SleepAction(1.0));
+        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR));
+        listOfActions.add(new SleepAction(1.0));
+        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR));
+        listOfActions.add(new SleepAction(1.0));
+        listOfActions.add(shooter.new LaunchAutonomous(SparkyJrShooter.Params.LauncherSpeed.FAR));
+        //listOfActions.add(new SleepAction(1.0));
+        listOfActions.add(shooter.new SpinDownAutonomous());
+        Action actionDrive = drive.actionBuilder(initialPose)
+                .splineTo(secondPose.position,secondPose.heading, velConstraint, accelConstraint)
+                .build();
+
+        listOfActions.add(actionDrive);
+        listOfActions.add(new SleepAction(1.0));
+
+        Action actionWhileFirstDrive = new SequentialAction(listOfActions);
+
+        return actionWhileFirstDrive;
+
+    }
+
+    public Action buildActionFarShootDriveOut( MecanumDrive drive, SparkyJrShooter shooter) {
+        this.drive = drive;
+        this.shooter = shooter;
+        Pose2d secondPose = new Pose2d(new Vector2d(-63+24, 14.5*PlusOrMinusOne), Math.toRadians(0*PlusOrMinusOne));
 
         VelConstraint velConstraint =
                 new MinVelConstraint(Arrays.asList(
